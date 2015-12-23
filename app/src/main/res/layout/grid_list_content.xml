@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.GridLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:orientation="horizontal"
-    app:layout_columnSpan="2">
+    android:background="@android:color/black">
 
 
     <com.android.volley.toolbox.NetworkImageView
@@ -15,5 +12,4 @@
         android:scaleType="fitXY"/>
 
 
-
-</android.support.v7.widget.GridLayout>
+</LinearLayout>
