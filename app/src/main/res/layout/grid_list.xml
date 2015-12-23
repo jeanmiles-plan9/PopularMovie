@@ -7,8 +7,4 @@
     android:name="com.example.popularmovie.app.ItemListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    app:layoutManager="GridLayoutManager"
-    tools:context="com.example.popularmovie.app.ItemListActivity"
-    tools:itemlist="@layout/item_grid_content"/>
+    tools:context="com.example.popularmovie.app.ItemListActivity"/>

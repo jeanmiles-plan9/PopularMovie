@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -52,6 +53,8 @@ public class ItemListActivity extends AppCompatActivity {
 
         final View recyclerView = findViewById(R.id.grid_list);
         assert recyclerView != null;
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(),2);
+        ((RecyclerView)recyclerView).setLayoutManager(gridLayoutManager);
         setupRecyclerView((RecyclerView) recyclerView);
 
         if (findViewById(R.id.item_detail_container) != null) {
