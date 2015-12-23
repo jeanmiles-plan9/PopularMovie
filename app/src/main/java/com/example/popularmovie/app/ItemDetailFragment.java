@@ -9,7 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.NetworkImageView;
 import com.example.popularmovie.app.content.MovieContent;
+import com.example.popularmovie.app.volley.VolleyManager;
 
 /**
  * A fragment representing a single Item detail screen.
@@ -48,7 +51,7 @@ public class ItemDetailFragment extends Fragment {
             Activity activity = this.getActivity();
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.movie.title);
+                appBarLayout.setTitle("MovieDetail");
             }
         }
     }
@@ -57,10 +60,15 @@ public class ItemDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
+        ImageLoader imageLoader = VolleyManager.getInstance(getActivity().getApplicationContext()).getImageLoader();
 
         // Show the movie content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.movie.overview);
+            ((NetworkImageView) rootView.findViewById(R.id.movie_item_image)).setImageUrl(mItem.getPosterUrl(), imageLoader);
+            ((TextView) rootView.findViewById(R.id.movie_title)).setText(mItem.title);
+            ((TextView) rootView.findViewById(R.id.movie_item_release_year)).setText(mItem.releaseDate);
+            ((TextView) rootView.findViewById(R.id.movie_item_rating)).setText(mItem.rating + "/10");
+            ((TextView) rootView.findViewById(R.id.movie_item_overview)).setText(mItem.overview);
         }
 
         return rootView;

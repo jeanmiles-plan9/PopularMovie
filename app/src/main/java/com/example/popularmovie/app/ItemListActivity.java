@@ -1,7 +1,5 @@
 package com.example.popularmovie.app;
 
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -9,18 +7,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.MovieRequest;
-import com.example.popularmovie.app.volley.VolleyManager;
-
-import java.util.List;
 
 /**
  * An activity representing a list of Items. This activity
@@ -38,8 +28,9 @@ public class ItemListActivity extends AppCompatActivity {
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
-    private boolean mTwoPane;
-    private SimpleItemRecyclerViewAdapter simpleItemRecyclerViewAdapter;
+    private boolean twoPane;
+    private SimpleGridRecyclerViewAdapter simpleGridRecyclerViewAdapter;
+    private static final String MAIN_TITLE = "Pop Movies";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +39,7 @@ public class ItemListActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getTitle());
+        getSupportActionBar().setTitle(MAIN_TITLE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -59,7 +50,7 @@ public class ItemListActivity extends AppCompatActivity {
             }
         });
 
-        final View recyclerView = findViewById(R.id.item_list);
+        final View recyclerView = findViewById(R.id.grid_list);
         assert recyclerView != null;
         setupRecyclerView((RecyclerView) recyclerView);
 
@@ -68,87 +59,18 @@ public class ItemListActivity extends AppCompatActivity {
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
             // activity should be in two-pane mode.
-            mTwoPane = true;
+            twoPane = true;
         }
+
         MovieRequest movieRequest = new MovieRequest();
-        movieRequest.fetchPopularMovies(getApplicationContext(),MovieContent.LATEST_PAGE_RESULT,simpleItemRecyclerViewAdapter);
-        }
+        movieRequest.fetchPopularMovies(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
+    }
+
+
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        simpleItemRecyclerViewAdapter = new SimpleItemRecyclerViewAdapter(MovieContent.ITEMS);
-        recyclerView.setAdapter(simpleItemRecyclerViewAdapter);
+        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
+        recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 
-    public class SimpleItemRecyclerViewAdapter
-            extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-
-        private final List<MovieContent.MovieItem> mValues;
-
-        public SimpleItemRecyclerViewAdapter(List<MovieContent.MovieItem> items) {
-            mValues = items;
-        }
-
-        @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_list_content, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            ImageLoader imageLoader = VolleyManager.getInstance(getApplicationContext()).getImageLoader();
-            holder.mItem = mValues.get(position);
-            holder.mNetworkImageView.setImageUrl(holder.mItem.movie.getBackdropUrl(), imageLoader);
-            holder.mIdView.setText(holder.mItem.movie.id);
-            holder.mContentView.setText(holder.mItem.movie.title);
-
-            holder.mView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mTwoPane) {
-                        Bundle arguments = new Bundle();
-                        arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.movie.id);
-                        ItemDetailFragment fragment = new ItemDetailFragment();
-                        fragment.setArguments(arguments);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.item_detail_container, fragment)
-                                .commit();
-                    } else {
-                        Context context = v.getContext();
-                        Intent intent = new Intent(context, ItemDetailActivity.class);
-                        intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.movie.id);
-
-                        context.startActivity(intent);
-                    }
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return mValues.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final NetworkImageView mNetworkImageView;
-            public final TextView mIdView;
-            public final TextView mContentView;
-            public MovieContent.MovieItem mItem;
-
-            public ViewHolder(View view) {
-                super(view);
-                mView = view;
-                mNetworkImageView = (NetworkImageView) view.findViewById(R.id.networkImageView);
-                mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
-            }
-
-            @Override
-            public String toString() {
-                return super.toString() + " '" + mContentView.getText() + "'";
-            }
-        }
-    }
 }
