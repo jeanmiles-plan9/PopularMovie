@@ -2,8 +2,6 @@ package com.example.popularmovie.app;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -42,19 +40,19 @@ public class ItemListActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(MAIN_TITLE);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         final View recyclerView = findViewById(R.id.grid_list);
         assert recyclerView != null;
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(),2);
-        ((RecyclerView)recyclerView).setLayoutManager(gridLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
+        ((RecyclerView) recyclerView).setLayoutManager(gridLayoutManager);
         setupRecyclerView((RecyclerView) recyclerView);
 
         if (findViewById(R.id.item_detail_container) != null) {
@@ -65,10 +63,11 @@ public class ItemListActivity extends AppCompatActivity {
             twoPane = true;
         }
 
-        MovieRequest movieRequest = new MovieRequest();
-        movieRequest.fetchPopularMovies(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
+        if (MovieContent.ITEMS.isEmpty()) {
+            MovieRequest movieRequest = new MovieRequest();
+            movieRequest.fetchPopularMovies(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
+        }
     }
-
 
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {

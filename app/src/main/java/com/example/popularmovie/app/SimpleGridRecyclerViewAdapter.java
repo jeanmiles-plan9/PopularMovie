@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import java.util.List;
 public class SimpleGridRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleGridRecyclerViewAdapter.ViewHolder> {
 
+    private static final String LOG_TAG = SimpleGridRecyclerViewAdapter.class.getSimpleName();
     private final List<MovieContent.MovieItem> mValues;
     private Context ctx;
     private boolean twoPane;
@@ -46,7 +48,7 @@ public class SimpleGridRecyclerViewAdapter
         ImageLoader imageLoader = VolleyManager.getInstance(ctx.getApplicationContext()).getImageLoader();
         holder.mItem = mValues.get(position);
         holder.mNetworkImageView.setImageUrl(holder.mItem.getPosterUrl(), imageLoader);
-
+        Log.d(LOG_TAG, "POSITION:" + position + " MOVIE TITLE: " + holder.mItem.title);
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
