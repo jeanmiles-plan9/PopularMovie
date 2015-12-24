@@ -16,6 +16,8 @@ import android.view.MenuItem;
  */
 public class ItemDetailActivity extends AppCompatActivity {
 
+    private static final String DETAIL_TITLE = "DetailMovie";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +29,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         // Show the Up button in the action bar.
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            getSupportActionBar().setTitle("DetailMovie");
+            getSupportActionBar().setTitle(DETAIL_TITLE);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 

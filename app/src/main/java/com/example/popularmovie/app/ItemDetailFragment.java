@@ -64,7 +64,7 @@ public class ItemDetailFragment extends Fragment {
         if (mItem != null) {
             ((NetworkImageView) rootView.findViewById(R.id.movie_item_image)).setImageUrl(mItem.getPosterUrl(), imageLoader);
             ((TextView) rootView.findViewById(R.id.movie_title)).setText(mItem.title);
-            ((TextView) rootView.findViewById(R.id.movie_item_release_year)).setText(mItem.releaseDate);
+            ((TextView) rootView.findViewById(R.id.movie_item_release_year)).setText(mItem.getReleaseYear());
             ((TextView) rootView.findViewById(R.id.movie_item_rating)).setText(mItem.rating + "/10");
             ((TextView) rootView.findViewById(R.id.movie_item_overview)).setText(mItem.overview);
         }

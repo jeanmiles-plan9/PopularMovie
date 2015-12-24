@@ -22,14 +22,18 @@ import com.example.popularmovie.app.volley.MovieRequest;
 public class ItemListActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
+    private static final String MAIN_TITLE = "Pop Movies";
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean twoPane;
+
+    /*
+     * RecyclerView and Adapter
+     */
     private SimpleGridRecyclerViewAdapter simpleGridRecyclerViewAdapter;
-    private static final String MAIN_TITLE = "Pop Movies";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,10 @@ public class ItemListActivity extends AppCompatActivity {
             twoPane = true;
         }
 
+        /*
+         *  This checks to see if there is any contents in movie, if so don't call API again
+         *  only time movie gets called again is app startup
+         */
         if (MovieContent.ITEMS.isEmpty()) {
             MovieRequest movieRequest = new MovieRequest();
             movieRequest.fetchMoviesInPopularOrder(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);

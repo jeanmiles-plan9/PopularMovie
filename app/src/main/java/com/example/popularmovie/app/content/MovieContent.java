@@ -103,6 +103,15 @@ public class MovieContent {
 
         public MovieItem() {}
 
+        public String getReleaseYear() {
+            String year = null;
+            if (releaseDate != null) {
+                String[] tokens = releaseDate.split("-");
+                year = tokens.length > 0 ? tokens[0] : "";
+            }
+            return year;
+        }
+
         public String getBackdropUrl() {
             return backdropUrl;
         }
