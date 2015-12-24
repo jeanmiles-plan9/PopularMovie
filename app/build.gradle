@@ -21,6 +21,10 @@ android {
         it.buildConfigField 'String', 'THE_MOVIEDB_API_KEY', theMovieDBApiKey
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
 }
 
 dependencies {
