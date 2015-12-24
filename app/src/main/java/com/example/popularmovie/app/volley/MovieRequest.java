@@ -8,7 +8,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.popularmovie.app.SimpleGridRecyclerViewAdapter;
-import com.example.popularmovie.app.common.RequestUtility;
+import com.example.popularmovie.app.common.MovieUrlBuilder;
 import com.example.popularmovie.app.content.MovieContent;
 
 import org.json.JSONObject;
@@ -21,14 +21,34 @@ public class MovieRequest {
 
     private static final String LOG_TAG = MovieRequest.class.getSimpleName();
 
-    public void fetchPopularMovies(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
+    public void fetchMoviesInPopularOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
 
-         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, RequestUtility.createUriFetchPopularMovies(page), null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchPopularMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                     MovieContent.createMovieItems(response);
                     movieAdapter.notifyDataSetChanged();
                     Log.d(LOG_TAG, response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(LOG_TAG, "network error " + error.getMessage());
+            }
+        });
+
+        VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    public void fetchMoviesInRatingOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchRatingMovies(page), null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                MovieContent.createMovieItems(response);
+                movieAdapter.notifyDataSetChanged();
+                Log.d(LOG_TAG, response.toString());
             }
         }, new Response.ErrorListener() {
             @Override

@@ -9,8 +9,12 @@ import com.example.popularmovie.app.BuildConfig;
  * UdaCity Android Nanodegree
  * Created by jeanmiles-plan9 on 12/21/15.
  */
-public class RequestUtility {
+public class MovieUrlBuilder {
+    private static final String LOG_TAG = MovieUrlBuilder.class.getSimpleName();
 
+    /*
+     *  text for building theMovieDB API url
+     */
     private final static String MOVIEDB_BASE_URL_HTTPS_SCHEME = "https";
     private final static String MOVIEDB_BASE_URL_HTTP_SCHEME = "http";
     private final static String MOVIEDB_BASE_URL_AUTHORITY = "api.themoviedb.org";
@@ -21,11 +25,9 @@ public class RequestUtility {
     private final static String MOVIEDB_PATH_MOVIE = "movie";
     private final static String MOVIEDB_PATH_DISCOVER = "discover";
     private final static String MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC = "popularity.desc";
-    private final static String MOVIEDB_QUERY_MOVIE_IMAGES = "images";
-    private final static String MOVIEDB_QUERY_MOVIE_LANGUAGE = "en";
-
+    private final static String MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC = "vote_average.desc";
     private final static String MOVIEDB_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
-    private static final String LOG_TAG = RequestUtility.class.getSimpleName();
+
 
     public static String createUriFetchPopularMovies(int page) {
         Uri.Builder builder = new Uri.Builder();
@@ -36,6 +38,19 @@ public class RequestUtility {
         builder.appendPath(MOVIEDB_PATH_MOVIE);
         builder.appendQueryParameter("api_key", MOVIEDB_API_KEY);
         builder.appendQueryParameter("sort_by", MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC);
+        Log.d(LOG_TAG, builder.toString());
+        return builder.toString();
+    }
+
+    public static String createUriFetchRatingMovies(int page) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
+        builder.authority(MOVIEDB_BASE_URL_AUTHORITY);
+        builder.appendPath(MOVIEDB_VERSION);
+        builder.appendPath(MOVIEDB_PATH_DISCOVER);
+        builder.appendPath(MOVIEDB_PATH_MOVIE);
+        builder.appendQueryParameter("api_key", MOVIEDB_API_KEY);
+        builder.appendQueryParameter("sort_by", MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC);
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();
     }

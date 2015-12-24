@@ -38,16 +38,9 @@ public class ItemListActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(MAIN_TITLE);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(MAIN_TITLE);
+        }
 
         final View recyclerView = findViewById(R.id.grid_list);
         assert recyclerView != null;
@@ -65,7 +58,7 @@ public class ItemListActivity extends AppCompatActivity {
 
         if (MovieContent.ITEMS.isEmpty()) {
             MovieRequest movieRequest = new MovieRequest();
-            movieRequest.fetchPopularMovies(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
+            movieRequest.fetchMoviesInPopularOrder(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
         }
     }
 

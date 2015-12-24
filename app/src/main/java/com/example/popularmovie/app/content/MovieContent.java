@@ -3,7 +3,7 @@ package com.example.popularmovie.app.content;
 import android.util.Log;
 
 import com.example.popularmovie.app.common.MovieSortOrder;
-import com.example.popularmovie.app.common.RequestUtility;
+import com.example.popularmovie.app.common.MovieUrlBuilder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,12 +25,12 @@ public class MovieContent {
     /**
      * An array of movie items.
      */
-    public static final List<MovieItem> ITEMS = new ArrayList<MovieItem>();
+    public static final List<MovieItem> ITEMS = new ArrayList<>();
 
     /**
      * A map of movie items, by ID.
      */
-    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<String, MovieItem>();
+    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<>();
 
     /*
      * Latest page result retrieved
@@ -91,7 +91,7 @@ public class MovieContent {
      */
     public static class MovieItem {
         final private static String POSTER_SIZE = "w185";
-        final private static String THUMBNAIL_SIZE = "w92";
+        final private static String BACKDROP_SIZE = "w92";
 
         public String id;
         public String title;
@@ -112,11 +112,11 @@ public class MovieContent {
         }
 
         public void setBackdropUrl(String path) {
-            backdropUrl = RequestUtility.createImageUrl(path, THUMBNAIL_SIZE);
+            backdropUrl = MovieUrlBuilder.createImageUrl(path, BACKDROP_SIZE);
         }
 
         public void setPosterUrl(String path) {
-            posterUrl = RequestUtility.createImageUrl(path, POSTER_SIZE);
+            posterUrl = MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
         }
     }
 }
