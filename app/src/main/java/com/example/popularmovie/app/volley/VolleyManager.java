@@ -36,7 +36,7 @@ public class VolleyManager {
         requestQueue = getRequestQueue();
 
         imageLoader = new ImageLoader(requestQueue, new ImageLoader.ImageCache() {
-            private final LruCache<String, Bitmap> cache = new LruCache<>(26);
+            private final LruCache<String, Bitmap> cache = new LruCache<>(45);
 
             @Override
             public Bitmap getBitmap(String url) {

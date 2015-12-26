@@ -40,7 +40,7 @@ public class MovieContent {
     /*
      * Set sort order of movies - default is popular
      */
-    private static MovieSortOrder order = MovieSortOrder.POPULAR;
+    private static MovieSortOrder movieOrder = MovieSortOrder.POPULAR;
 
     // names of JSON objects
     final static String MOVIE_PAGE = "page";
@@ -54,8 +54,13 @@ public class MovieContent {
     final static String MOVIE_VOTE_AVERAGE = "vote_average";
 
 
-    public static void createMovieItems(JSONObject movieJsonObject) {
+    public static void createMovieItems(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
         try {
+            // if different sort order is return from request then clear array before loading movieitems in
+            if (movieOrder != sortOrder) {
+                clearMovies();
+            }
+            // parse out the Json response into MovieItems
             JSONArray movieArray = movieJsonObject.getJSONArray(MOVIE_RESULTS);
             LATEST_PAGE_RESULT = movieJsonObject.getInt(MOVIE_PAGE);
             for (int index = 0; index < movieArray.length(); index++) {
@@ -72,6 +77,7 @@ public class MovieContent {
                 ITEM_MAP.put(movieItem.id, movieItem);
                 Log.d(LOG_TAG, "movie id is " + movieItem.id + " movie title " + movieItem.title);
             }
+            setMovieSortOrder(sortOrder);
         } catch (JSONException e) {
             Log.d(LOG_TAG, e.getMessage());
         }
@@ -81,10 +87,13 @@ public class MovieContent {
         ITEMS.clear();
     }
 
-    public static void setMovieContent(MovieSortOrder sortOrder) {
-        order = sortOrder;
+    public static void setMovieSortOrder(MovieSortOrder sortOrder) {
+        movieOrder = sortOrder;
     }
 
+    public static MovieSortOrder getMovieSortOrder() {
+        return movieOrder;
+    }
 
     /**
      * A movie item representing a piece of content.

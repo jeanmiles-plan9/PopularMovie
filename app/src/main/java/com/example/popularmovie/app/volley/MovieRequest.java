@@ -8,6 +8,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.popularmovie.app.SimpleGridRecyclerViewAdapter;
+import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.common.MovieUrlBuilder;
 import com.example.popularmovie.app.content.MovieContent;
 
@@ -21,12 +22,12 @@ public class MovieRequest {
 
     private static final String LOG_TAG = MovieRequest.class.getSimpleName();
 
-    public void fetchMoviesInPopularOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
+    public void fetchMoviesInMostPopularOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchPopularMovies(page), null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUrlFetchMostPopularMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                    MovieContent.createMovieItems(response);
+                MovieContent.createMovieItems(response, MovieSortOrder.POPULAR);
                     movieAdapter.notifyDataSetChanged();
                     Log.d(LOG_TAG, response.toString());
             }
@@ -41,12 +42,12 @@ public class MovieRequest {
     }
 
 
-    public void fetchMoviesInRatingOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
+    public void fetchMoviesInHighestRatingOrder(Context context, int page, final SimpleGridRecyclerViewAdapter movieAdapter) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchRatingMovies(page), null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchHighestRatedMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                MovieContent.createMovieItems(response);
+                MovieContent.createMovieItems(response, MovieSortOrder.RATING);
                 movieAdapter.notifyDataSetChanged();
                 Log.d(LOG_TAG, response.toString());
             }

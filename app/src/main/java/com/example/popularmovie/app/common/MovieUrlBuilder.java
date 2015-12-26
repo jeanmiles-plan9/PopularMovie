@@ -29,7 +29,7 @@ public class MovieUrlBuilder {
     private final static String MOVIEDB_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
 
 
-    public static String createUriFetchPopularMovies(int page) {
+    public static String createUrlFetchMostPopularMovies(int page) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
         builder.authority(MOVIEDB_BASE_URL_AUTHORITY);
@@ -42,7 +42,7 @@ public class MovieUrlBuilder {
         return builder.toString();
     }
 
-    public static String createUriFetchRatingMovies(int page) {
+    public static String createUriFetchHighestRatedMovies(int page) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
         builder.authority(MOVIEDB_BASE_URL_AUTHORITY);

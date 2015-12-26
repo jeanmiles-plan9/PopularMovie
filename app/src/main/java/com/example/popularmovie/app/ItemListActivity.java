@@ -6,8 +6,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
+import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.MovieRequest;
 
@@ -23,7 +27,7 @@ public class ItemListActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
     private static final String MAIN_TITLE = "Pop Movies";
-
+    private MovieRequest movieRequest;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -64,16 +68,53 @@ public class ItemListActivity extends AppCompatActivity {
          *  This checks to see if there is any contents in movie, if so don't call API again
          *  only time movie gets called again is app startup
          */
+        movieRequest = new MovieRequest();
         if (MovieContent.ITEMS.isEmpty()) {
-            MovieRequest movieRequest = new MovieRequest();
-            movieRequest.fetchMoviesInPopularOrder(getApplicationContext(), MovieContent.LATEST_PAGE_RESULT, simpleGridRecyclerViewAdapter);
+            fetchMoviesFor(MovieContent.getMovieSortOrder(), 1);
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_popular) {
+            if (MovieContent.getMovieSortOrder() == MovieSortOrder.RATING) {
+                fetchMoviesFor(MovieSortOrder.POPULAR, 1);
+                Log.d(LOG_TAG, "called request for most popular selected");
+            }
+            Log.d(LOG_TAG, "most popular selected");
+            return true;
+        } else if (id == R.id.action_rated) {
+            if (MovieContent.getMovieSortOrder() == MovieSortOrder.POPULAR) {
+                fetchMoviesFor(MovieSortOrder.RATING, 1);
+                Log.d(LOG_TAG, "called request for most highest rated");
+            }
+            Log.d(LOG_TAG, "most highest rated");
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 
+    private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
+        movieRequest = new MovieRequest();
+        if (sortOrder == MovieSortOrder.POPULAR) {
+            movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+        } else if (sortOrder == MovieSortOrder.RATING) {
+            movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+        }
+    }
 }
