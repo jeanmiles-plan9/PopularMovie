@@ -33,7 +33,9 @@
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:layout_marginLeft="@dimen/fab_margin"
-            android:layout_marginTop="@dimen/fab_margin" />
+            android:layout_marginTop="@dimen/fab_margin"
+            android:scaleType="fitXY"
+            android:layout_weight="1" />
 
         <LinearLayout
             android:id="@+id/movie_item_text"
