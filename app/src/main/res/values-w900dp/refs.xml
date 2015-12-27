@@ -6,5 +6,5 @@
     For more on layout aliases, see:
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
-    <item name="item_list" type="layout">@layout/item_list_twopane</item>
+    <item name="grid_list" type="layout">@layout/item_list_twopane</item>
 </resources>

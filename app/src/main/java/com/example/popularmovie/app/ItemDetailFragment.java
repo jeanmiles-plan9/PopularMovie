@@ -31,7 +31,6 @@ public class ItemDetailFragment extends Fragment {
      * The movie content this fragment is presenting.
      */
     private MovieContent.MovieItem mItem;
-    private String itemPosition;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
