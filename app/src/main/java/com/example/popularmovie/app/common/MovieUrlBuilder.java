@@ -24,9 +24,13 @@ public class MovieUrlBuilder {
     private final static String MOVIEDB_IMAGE_PATH_P = "p";
     private final static String MOVIEDB_PATH_MOVIE = "movie";
     private final static String MOVIEDB_PATH_DISCOVER = "discover";
+    private final static String MOVIEDB_QUERY_PAGE = "page";
     private final static String MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC = "popularity.desc";
     private final static String MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC = "vote_average.desc";
-    private final static String MOVIEDB_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
+    private final static String MOVIEDB_QUERY_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
+
+    private final static String MOVIEDB_API_KEY = "api_key";
+    private final static String MOVIEDB_SORT_BY = "sort_by";
 
 
     public static String createUrlFetchMostPopularMovies(int page) {
@@ -36,8 +40,9 @@ public class MovieUrlBuilder {
         builder.appendPath(MOVIEDB_VERSION);
         builder.appendPath(MOVIEDB_PATH_DISCOVER);
         builder.appendPath(MOVIEDB_PATH_MOVIE);
-        builder.appendQueryParameter("api_key", MOVIEDB_API_KEY);
-        builder.appendQueryParameter("sort_by", MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC);
+        builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
+        builder.appendQueryParameter(MOVIEDB_SORT_BY, MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC);
+        builder.appendQueryParameter(MOVIEDB_QUERY_PAGE, String.valueOf(page));
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();
     }
@@ -49,8 +54,9 @@ public class MovieUrlBuilder {
         builder.appendPath(MOVIEDB_VERSION);
         builder.appendPath(MOVIEDB_PATH_DISCOVER);
         builder.appendPath(MOVIEDB_PATH_MOVIE);
-        builder.appendQueryParameter("api_key", MOVIEDB_API_KEY);
-        builder.appendQueryParameter("sort_by", MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC);
+        builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
+        builder.appendQueryParameter(MOVIEDB_SORT_BY, MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC);
+        builder.appendQueryParameter(MOVIEDB_QUERY_PAGE, String.valueOf(page));
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();
     }

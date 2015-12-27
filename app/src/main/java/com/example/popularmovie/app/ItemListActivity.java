@@ -50,11 +50,20 @@ public class ItemListActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(MAIN_TITLE);
         }
 
-        final View recyclerView = findViewById(R.id.grid_list);
-        assert recyclerView != null;
+        final View view = findViewById(R.id.grid_list);
+        assert view != null;
+        RecyclerView recyclerView = (RecyclerView) view;
+
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
-        ((RecyclerView) recyclerView).setLayoutManager(gridLayoutManager);
-        setupRecyclerView((RecyclerView) recyclerView);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.addOnScrollListener(new GridLayoutScrollListener(gridLayoutManager, getApplicationContext()) {
+            @Override
+            public void loadMore(int page) {
+                Log.d(LOG_TAG, " page to fetch is " + page);
+                fetchMoviesFor(MovieContent.getMovieSortOrder(), page);
+            }
+        });
+        setupRecyclerView(recyclerView);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
