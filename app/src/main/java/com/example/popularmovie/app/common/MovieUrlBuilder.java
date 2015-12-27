@@ -9,6 +9,9 @@ import com.example.popularmovie.app.BuildConfig;
  * UdaCity Android Nanodegree
  * Created by jeanmiles-plan9 on 12/21/15.
  */
+/*
+ * This class builds Url for theMovieDB API
+ */
 public class MovieUrlBuilder {
     private static final String LOG_TAG = MovieUrlBuilder.class.getSimpleName();
 
@@ -33,6 +36,9 @@ public class MovieUrlBuilder {
     private final static String MOVIEDB_SORT_BY = "sort_by";
 
 
+    /*
+     * This method creates a Url for fetching most popular movie in descending order by page
+     */
     public static String createUrlFetchMostPopularMovies(int page) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
@@ -47,6 +53,9 @@ public class MovieUrlBuilder {
         return builder.toString();
     }
 
+    /*
+     * This method creates a Url for fetching highest rated movie in descending order by page
+     */
     public static String createUriFetchHighestRatedMovies(int page) {
         Uri.Builder builder = new Uri.Builder();
         builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
@@ -61,6 +70,9 @@ public class MovieUrlBuilder {
         return builder.toString();
     }
 
+    /*
+     * This method creates a Url for fetching image for particular size
+     */
     public static String createImageUrl(String path, String size) {
         path = path.replaceFirst("\\/", "");
         Uri.Builder builder = new Uri.Builder();

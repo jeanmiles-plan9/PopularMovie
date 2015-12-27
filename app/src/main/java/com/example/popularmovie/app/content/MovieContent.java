@@ -54,6 +54,10 @@ public class MovieContent {
     final static String MOVIE_VOTE_AVERAGE = "vote_average";
 
 
+    /*
+     * This method create MovieItems from JsonObject and set the sort order.  If the sort order has changed then the arraylist is
+     * cleared.
+     */
     public static void createMovieItems(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
         try {
             // if different sort order is return from request then clear array before loading movieitems in
@@ -79,18 +83,27 @@ public class MovieContent {
             }
             setMovieSortOrder(sortOrder);
         } catch (JSONException e) {
-            Log.d(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, e.getMessage());
         }
     }
 
+    /*
+     * This method clears the arraylist
+     */
     public static void clearMovies() {
         ITEMS.clear();
     }
 
+    /*
+     * This method sets the movie sort order
+     */
     public static void setMovieSortOrder(MovieSortOrder sortOrder) {
         movieOrder = sortOrder;
     }
 
+    /*
+     * This method gets the movie sort order
+     */
     public static MovieSortOrder getMovieSortOrder() {
         return movieOrder;
     }

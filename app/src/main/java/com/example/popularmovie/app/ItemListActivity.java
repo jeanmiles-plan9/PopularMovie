@@ -86,16 +86,6 @@ public class ItemListActivity extends AppCompatActivity {
             fetchMoviesFor(MovieContent.getMovieSortOrder(), 1);
         }
 
-
-        /**
-         * This method is called if savedInstanceState is not null.  The recyclerView is scrolled to the last position before
-         * activity is destroyed.  NOTE: This is current not working even though the onSaveInstanceState is called and executed.
-         * will be looking into fixing this in Stage2.
-         */
-        if (savedInstanceState != null) {
-            grid_scroll_position = savedInstanceState.getInt(GRID_STATE);
-            recyclerView.smoothScrollToPosition(grid_scroll_position);
-        }
     }
 
     @Override
@@ -142,6 +132,18 @@ public class ItemListActivity extends AppCompatActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    /**
+     * This method is to restore recyclerView grid to position it was when onSaveInstanceState was called.
+     * NOTE: This is current not called even though the onSaveInstanceState is called and executed.
+     * I will be looking into fixing this in Stage2.
+     */
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        grid_scroll_position = savedInstanceState.getInt(GRID_STATE);
+        recyclerView.smoothScrollToPosition(grid_scroll_position);
+    }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
@@ -150,9 +152,7 @@ public class ItemListActivity extends AppCompatActivity {
 
     private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
         movieRequest = new MovieRequest();
-        if (page == 1) {
-            grid_scroll_position = 0;
-        }
+
         if (sortOrder == MovieSortOrder.POPULAR) {
             movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
         } else if (sortOrder == MovieSortOrder.RATING) {

@@ -1,8 +1,6 @@
 package com.example.popularmovie.app.volley;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.v4.util.LruCache;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -13,7 +11,9 @@ import com.android.volley.toolbox.Volley;
 /**
  * UdaCity Android Nanodegree
  * Created by jeanmiles-plan9 on 12/19/15.
+ *  * This class is created similar stated in http://developer.android.com/training/volley/requestqueue.html
  */
+
 public class VolleyManager {
     private static VolleyManager volleyManager;
     private static Context ctx;
@@ -35,19 +35,7 @@ public class VolleyManager {
         ctx = context;
         requestQueue = getRequestQueue();
 
-        imageLoader = new ImageLoader(requestQueue, new ImageLoader.ImageCache() {
-            private final LruCache<String, Bitmap> cache = new LruCache<>(45);
-
-            @Override
-            public Bitmap getBitmap(String url) {
-                return cache.get(url);
-            }
-
-            @Override
-            public void putBitmap(String url, Bitmap bitmap) {
-                cache.put(url, bitmap);
-            }
-        });
+        imageLoader = new ImageLoader(requestQueue, new LruBitmapCache(40));
     }
 
     public RequestQueue getRequestQueue() {

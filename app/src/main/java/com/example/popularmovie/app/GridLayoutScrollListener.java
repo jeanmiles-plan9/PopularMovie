@@ -11,6 +11,9 @@ import com.example.popularmovie.app.content.MovieContent;
  * UdaCity Android Nanodegree
  * Created by jeanmiles-plan9 on 12/26/15.
  */
+/*
+ * This class extends RecyclerView.OnScrollListner so we can override the scroll methods
+ */
 public class GridLayoutScrollListener extends RecyclerView.OnScrollListener {
     private final static String LOG_TAG = GridLayoutScrollListener.class.getSimpleName();
 
@@ -27,13 +30,17 @@ public class GridLayoutScrollListener extends RecyclerView.OnScrollListener {
         ctx = context;
     }
 
+    /*
+     * This method detects RecyclerView scrolling.  If reach near the end of the list,  it will call loadMove().  The
+     * loadMove() is Overrided in Activity method to fetch more movie data.
+     */
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
         firstVisibleItem = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
         visibleItemCount = recyclerView.getChildCount();
         totalItemCount = gridLayoutManager.getItemCount();
-        lastVisibleItem = gridLayoutManager.findLastCompletelyVisibleItemPosition();
+        lastVisibleItem = gridLayoutManager.findLastVisibleItemPosition();
 
         if (loading) {
             if (totalItemCount > previousTotal) {
