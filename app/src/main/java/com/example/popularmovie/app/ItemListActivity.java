@@ -28,6 +28,10 @@ public class ItemListActivity extends AppCompatActivity {
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
     private static final String MAIN_TITLE = "Pop Movies";
     private MovieRequest movieRequest;
+    private static final String GRID_STATE = "gridState";
+    private int grid_scroll_position;
+    private RecyclerView recyclerView;
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -52,7 +56,7 @@ public class ItemListActivity extends AppCompatActivity {
 
         final View view = findViewById(R.id.grid_list);
         assert view != null;
-        RecyclerView recyclerView = (RecyclerView) view;
+        recyclerView = (RecyclerView) view;
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -80,6 +84,17 @@ public class ItemListActivity extends AppCompatActivity {
         movieRequest = new MovieRequest();
         if (MovieContent.ITEMS.isEmpty()) {
             fetchMoviesFor(MovieContent.getMovieSortOrder(), 1);
+        }
+
+
+        /**
+         * This method is called if savedInstanceState is not null.  The recyclerView is scrolled to the last position before
+         * activity is destroyed.  NOTE: This is current not working even though the onSaveInstanceState is called and executed.
+         * will be looking into fixing this in Stage2.
+         */
+        if (savedInstanceState != null) {
+            grid_scroll_position = savedInstanceState.getInt(GRID_STATE);
+            recyclerView.smoothScrollToPosition(grid_scroll_position);
         }
     }
 
@@ -113,6 +128,21 @@ public class ItemListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+
+        // Save the gridlayout current scroll position
+        if (recyclerView.getLayoutManager() != null && recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+            grid_scroll_position = ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+            savedInstanceState.putInt(GRID_STATE, grid_scroll_position);
+        }
+
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
@@ -120,10 +150,15 @@ public class ItemListActivity extends AppCompatActivity {
 
     private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
         movieRequest = new MovieRequest();
+        if (page == 1) {
+            grid_scroll_position = 0;
+        }
         if (sortOrder == MovieSortOrder.POPULAR) {
             movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
         } else if (sortOrder == MovieSortOrder.RATING) {
             movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
         }
     }
+
+
 }

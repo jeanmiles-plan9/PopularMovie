@@ -25,10 +25,13 @@ public class ItemDetailFragment extends Fragment {
      */
     public static final String ARG_ITEM_ID = "item_id";
 
+    public static final String ARG_ITEM_POSITION = "item_position";
+
     /**
      * The movie content this fragment is presenting.
      */
     private MovieContent.MovieItem mItem;
+    private String itemPosition;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -45,12 +48,6 @@ public class ItemDetailFragment extends Fragment {
             // Load the movie content specified by the fragment
             // arguments.
             mItem = MovieContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-
-//            Activity activity = this.getActivity();
-//            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-//            if (appBarLayout != null) {
-//                appBarLayout.setTitle("MovieDetail");
-//            }
         }
     }
 

@@ -17,7 +17,7 @@ public class GridLayoutScrollListener extends RecyclerView.OnScrollListener {
     private GridLayoutManager gridLayoutManager;
     private Context ctx;
 
-    private int visibleItemCount, totalItemCount, lastVisibleItem;
+    private int visibleItemCount, totalItemCount, firstVisibleItem, lastVisibleItem;
     private boolean loading = true;
     private int previousTotal = 0;
     private int visibleThreshold = 4;
@@ -30,7 +30,7 @@ public class GridLayoutScrollListener extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
-
+        firstVisibleItem = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
         visibleItemCount = recyclerView.getChildCount();
         totalItemCount = gridLayoutManager.getItemCount();
         lastVisibleItem = gridLayoutManager.findLastCompletelyVisibleItemPosition();

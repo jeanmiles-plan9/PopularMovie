@@ -48,7 +48,9 @@ public class MovieRequest {
             @Override
             public void onResponse(JSONObject response) {
                 MovieContent.createMovieItems(response, MovieSortOrder.RATING);
-                movieAdapter.notifyDataSetChanged();
+                if (MovieContent.LATEST_PAGE_RESULT == 1) {
+                    movieAdapter.notifyDataSetChanged();
+                }
                 Log.d(LOG_TAG, response.toString());
             }
         }, new Response.ErrorListener() {
