@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -25,12 +26,16 @@ public class ItemDetailFragment extends Fragment {
      */
     public static final String ARG_ITEM_ID = "item_id";
 
-    public static final String ARG_ITEM_POSITION = "item_position";
+    /*
+     * if View is in twopane
+     */
+    public static final String ARG_TWOPANE = "twopane";
 
     /**
      * The movie content this fragment is presenting.
      */
     private MovieContent.MovieItem mItem;
+    private boolean twoPane;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -38,6 +43,7 @@ public class ItemDetailFragment extends Fragment {
      */
     public ItemDetailFragment() {
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,7 @@ public class ItemDetailFragment extends Fragment {
             // Load the movie content specified by the fragment
             // arguments.
             mItem = MovieContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            twoPane = getArguments().getBoolean(ARG_TWOPANE);
         }
     }
 
@@ -55,6 +62,10 @@ public class ItemDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.item_detail, container, false);
         ImageLoader imageLoader = VolleyManager.getInstance(getActivity().getApplicationContext()).getImageLoader();
+        if (twoPane) {
+            LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.movie_item_detail);
+            linearLayout.getLayoutParams().height = 400;
+        }
 
         // Show the movie content as text in a TextView.
         if (mItem != null) {

@@ -55,6 +55,7 @@ public class SimpleGridRecyclerViewAdapter
                 if (twoPane) {
                     Bundle arguments = new Bundle();
                     arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                    arguments.putBoolean(ItemDetailFragment.ARG_TWOPANE, twoPane);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
                     AppCompatActivity activity = (ctx instanceof AppCompatActivity) ? (AppCompatActivity) ctx : null;

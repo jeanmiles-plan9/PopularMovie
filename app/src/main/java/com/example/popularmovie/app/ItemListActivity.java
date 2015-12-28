@@ -67,7 +67,6 @@ public class ItemListActivity extends AppCompatActivity {
                 fetchMoviesFor(MovieContent.getMovieSortOrder(), page);
             }
         });
-        setupRecyclerView(recyclerView);
 
         if (findViewById(R.id.item_detail_container) != null) {
             // The detail container view will be present only in the
@@ -77,6 +76,7 @@ public class ItemListActivity extends AppCompatActivity {
             twoPane = true;
         }
 
+        setupRecyclerView(recyclerView);
         /*
          *  This checks to see if there is any contents in movie, if so don't call API again
          *  only time movie gets called again is app startup

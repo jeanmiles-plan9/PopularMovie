@@ -30,12 +30,13 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        tools:context="com.example.popularmovie.app.ItemListActivity" />
+        tools:context="com.example.popularmovie.app.ItemListActivity"
+        android:layout_weight="1" />
 
     <FrameLayout
         android:id="@+id/item_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="3" />
+        android:layout_weight="1" />
 
 </LinearLayout>
