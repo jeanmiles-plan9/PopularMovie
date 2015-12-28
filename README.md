@@ -1,7 +1,7 @@
 # PopularMovie
 
 Step 1:
-Either create or add the following line to file togradle.properties(Project Properties)
+Either create or add the following line to file to gradle.properties(Project Properties)
 
 theMovieDBApiKey = “your_api_key”
 
