@@ -28,12 +28,18 @@ public class MovieUrlBuilder {
     private final static String MOVIEDB_PATH_MOVIE = "movie";
     private final static String MOVIEDB_PATH_DISCOVER = "discover";
     private final static String MOVIEDB_QUERY_PAGE = "page";
+    private static final String MOVIEDB_PATH_REVIEWS = "reviews";
+    private static final String MOVIEDB_PATH_VIDEOS = "videos" ;
+
+    /* categories keywords */
+    private final static String MOVIEDB_SORT_BY = "sort_by";
     private final static String MOVIEDB_QUERY_SORT_BY_POPULARITY_DESC = "popularity.desc";
     private final static String MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC = "vote_average.desc";
-    private final static String MOVIEDB_QUERY_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
+    private final static String MOVIEDB_QUERY_APPEND_TO_RESPONSE = "append_to_response";
 
+    /* api key */
+    private final static String MOVIEDB_QUERY_API_KEY = BuildConfig.THE_MOVIEDB_API_KEY;
     private final static String MOVIEDB_API_KEY = "api_key";
-    private final static String MOVIEDB_SORT_BY = "sort_by";
 
 
     /*
@@ -53,6 +59,7 @@ public class MovieUrlBuilder {
         return builder.toString();
     }
 
+
     /*
      * This method creates a Url for fetching highest rated movie in descending order by page
      */
@@ -66,6 +73,39 @@ public class MovieUrlBuilder {
         builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
         builder.appendQueryParameter(MOVIEDB_SORT_BY, MOVIEDB_QUERY_SORT_BY_VOTE_AVERAGE_DESC);
         builder.appendQueryParameter(MOVIEDB_QUERY_PAGE, String.valueOf(page));
+        Log.d(LOG_TAG, builder.toString());
+        return builder.toString();
+    }
+
+    /*
+     * This method creates a Url for fetching trailers for a movie
+    */
+    public static String createUriMovieDetailsAndTrailers(String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
+        builder.authority(MOVIEDB_BASE_URL_AUTHORITY);
+        builder.appendPath(MOVIEDB_VERSION);
+        builder.appendPath(MOVIEDB_PATH_MOVIE);
+        builder.appendPath(movieId);
+        builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
+        builder.appendQueryParameter(MOVIEDB_QUERY_APPEND_TO_RESPONSE,MOVIEDB_PATH_VIDEOS);
+        Log.d(LOG_TAG, builder.toString());
+        return builder.toString();
+    }
+
+
+    /*
+     * This method creates a Url for fetching reviews for a movie
+    */
+    public static String createUriMovieReviews(int page, String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
+        builder.authority(MOVIEDB_BASE_URL_AUTHORITY);
+        builder.appendPath(MOVIEDB_VERSION);
+        builder.appendPath(MOVIEDB_PATH_MOVIE);
+        builder.appendPath(movieId);
+        builder.appendPath(MOVIEDB_PATH_REVIEWS);
+        builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();
     }

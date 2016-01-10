@@ -34,7 +34,7 @@ public class MovieRequest {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(LOG_TAG, "network error " + error.getMessage());
+                Log.e(LOG_TAG, "network error " + error.getMessage());
             }
         });
 
@@ -56,7 +56,46 @@ public class MovieRequest {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(LOG_TAG,"network error " + error.getMessage());
+                Log.e(LOG_TAG,"network error " + error.getMessage());
+            }
+        });
+
+        VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
+
+    public void fetchMovieTrailers(Context context, int page, final String movieId) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriMovieDetailsAndTrailers(movieId), null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                MovieContent.createMovieVideos(response);
+                // TODO: 1/10/16  update here to notify to update ui, how ???
+                Log.d(LOG_TAG, response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(LOG_TAG,"network error " + error.getMessage());
+            }
+        });
+
+        VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
+    public void fetchMovieReviews(Context context, int page, final String movieId) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriMovieReviews(page, movieId), null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                MovieContent.createMovieReviews(response);
+                // TODO: 1/10/16  update here to notify to update ui, how ???
+                Log.d(LOG_TAG, response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(LOG_TAG,"network error " + error.getMessage());
             }
         });
 

@@ -15,6 +15,8 @@ import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.MovieRequest;
 
+import java.util.List;
+
 /**
  * An activity representing a list of Items. This activity
  * has different presentations for handset and tablet-size devices. On
@@ -82,7 +84,7 @@ public class ItemListActivity extends AppCompatActivity {
          *  only time movie gets called again is app startup
          */
         movieRequest = new MovieRequest();
-        if (MovieContent.ITEMS.isEmpty()) {
+        if (MovieContent.ITEM_MAP.isEmpty()) {
             fetchMoviesFor(MovieContent.getMovieSortOrder(), 1);
         }
 
@@ -146,7 +148,8 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
+        List<MovieContent.MovieItem> items = (List<MovieContent.MovieItem>) MovieContent.ITEM_MAP.values();
+        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, items, twoPane);
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 

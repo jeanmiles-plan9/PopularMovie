@@ -20,12 +20,9 @@ import java.util.Map;
  * <p/>
  */
 public class MovieContent {
+
     public static String LOG_TAG = MovieContent.class.getSimpleName();
 
-    /**
-     * An array of movie items.
-     */
-    public static final List<MovieItem> ITEMS = new ArrayList<>();
 
     /**
      * A map of movie items, by ID.
@@ -52,6 +49,13 @@ public class MovieContent {
     final static String MOVIE_TITLE = "title";
     final static String MOVIE_BACKDROP_PATH = "backdrop_path";
     final static String MOVIE_VOTE_AVERAGE = "vote_average";
+    final static String MOVIE_VIDEOS = "videos";
+    final static String MOVIE_RUNTIME = "runtime";
+    final static String MOVIE_KEY = "key";
+    final static String MOVIE_SITE = "site";
+    static final String MOVIE_REVIEWS = "reviews";
+    static final String MOVIE_AUTHOR = "author";
+    static final String MOVIE_CONTENT = "content";
 
 
     /*
@@ -77,7 +81,7 @@ public class MovieContent {
                 movieItem.rating = jsonMovie.getDouble(MOVIE_VOTE_AVERAGE);
                 movieItem.setPosterUrl(jsonMovie.getString(MOVIE_POSTER_PATH));
                 movieItem.setBackdropUrl(jsonMovie.getString(MOVIE_BACKDROP_PATH));
-                ITEMS.add(movieItem);
+//                ITEMS.add(movieItem);
                 ITEM_MAP.put(movieItem.id, movieItem);
                 Log.d(LOG_TAG, "movie id is " + movieItem.id + " movie title " + movieItem.title);
             }
@@ -91,7 +95,7 @@ public class MovieContent {
      * This method clears the arraylist
      */
     public static void clearMovies() {
-        ITEMS.clear();
+        ITEM_MAP.clear();
     }
 
     /*
@@ -108,6 +112,41 @@ public class MovieContent {
         return movieOrder;
     }
 
+    public static void createMovieReviews(JSONObject response) {
+        try {
+            MovieItem item = ITEM_MAP.get(response.getString(MOVIE_ID));
+            if (item != null) {
+                item.runtime = response.getInt(MOVIE_RUNTIME);
+                JSONObject reviews = response.getJSONObject(MOVIE_REVIEWS);
+                JSONArray results = reviews.getJSONArray(MOVIE_RESULTS);
+                for (int index = 0; index < results.length(); index++) {
+                    JSONObject review = results.getJSONObject(index);
+                    item.addReview(review.getString(MOVIE_AUTHOR), review.getString(MOVIE_CONTENT));
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+    }
+
+    public static void createMovieVideos(JSONObject response) {
+        try {
+            MovieItem item = ITEM_MAP.get(response.getString(MOVIE_ID));
+            if (item != null) {
+                item.runtime = response.getInt(MOVIE_RUNTIME);
+                JSONArray movieArray = response.getJSONObject(MOVIE_VIDEOS).getJSONArray(MOVIE_RESULTS);
+                for (int index = 0; index < movieArray.length(); index++) {
+                    JSONObject jsonMovie = movieArray.getJSONObject(index);
+                    item.addTrailer(jsonMovie.getString(MOVIE_KEY), jsonMovie.getString(MOVIE_SITE));
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+
+    }
+
     /**
      * A movie item representing a piece of content.
      */
@@ -120,10 +159,15 @@ public class MovieContent {
         public double rating;
         public String releaseDate;
         public String overview;
+        public int runtime;  /* in minutes */
+        public List<String> trailers;
+        public List<Review> reviews;
         private String backdropUrl;
         private String posterUrl;
 
-        public MovieItem() {}
+
+        public MovieItem() {
+        }
 
         public String getReleaseYear() {
             String year = null;
@@ -148,6 +192,21 @@ public class MovieContent {
 
         public void setPosterUrl(String path) {
             posterUrl = MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
+        }
+
+        public void addTrailer(String key, String site) {
+            if (trailers == null) {
+                trailers = new ArrayList<String>();
+            }
+            trailers.add("https://www." + site + ".com/watch?v=" + key);
+        }
+
+        public void addReview(String author, String content) {
+            if (reviews == null) {
+                reviews = new ArrayList<Review>();
+            }
+            Review review = new Review(author, content);
+            reviews.add(review);
         }
     }
 }
