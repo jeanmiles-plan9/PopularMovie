@@ -23,11 +23,11 @@ public class MovieContent {
 
     public static String LOG_TAG = MovieContent.class.getSimpleName();
 
-
+    public static final List<MovieItem> ITEMS = new ArrayList<MovieItem>();
     /**
      * A map of movie items, by ID.
      */
-    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<>();
+    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<String, MovieItem>();
 
     /*
      * Latest page result retrieved
@@ -80,8 +80,7 @@ public class MovieContent {
                 movieItem.releaseDate = jsonMovie.getString(MOVIE_RELEASE_DATE);
                 movieItem.rating = jsonMovie.getDouble(MOVIE_VOTE_AVERAGE);
                 movieItem.setPosterUrl(jsonMovie.getString(MOVIE_POSTER_PATH));
-                movieItem.setBackdropUrl(jsonMovie.getString(MOVIE_BACKDROP_PATH));
-//                ITEMS.add(movieItem);
+                ITEMS.add(movieItem);
                 ITEM_MAP.put(movieItem.id, movieItem);
                 Log.d(LOG_TAG, "movie id is " + movieItem.id + " movie title " + movieItem.title);
             }
@@ -162,7 +161,7 @@ public class MovieContent {
         public int runtime;  /* in minutes */
         public List<String> trailers;
         public List<Review> reviews;
-        private String backdropUrl;
+        public String poster;
         private String posterUrl;
 
 
@@ -178,17 +177,10 @@ public class MovieContent {
             return year;
         }
 
-        public String getBackdropUrl() {
-            return backdropUrl;
-        }
-
         public String getPosterUrl() {
             return posterUrl;
         }
 
-        public void setBackdropUrl(String path) {
-            backdropUrl = MovieUrlBuilder.createImageUrl(path, BACKDROP_SIZE);
-        }
 
         public void setPosterUrl(String path) {
             posterUrl = MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);

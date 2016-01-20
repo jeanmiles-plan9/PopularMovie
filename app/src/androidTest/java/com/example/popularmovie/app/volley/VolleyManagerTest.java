@@ -1,11 +1,9 @@
 package com.example.popularmovie.app.volley;
 
-import android.test.mock.MockContext;
+import android.app.Application;
+import android.test.ApplicationTestCase;
 
 import com.android.volley.RequestQueue;
-
-import junit.framework.TestCase;
-import org.Mockito.*;
 
 
 /**
@@ -13,19 +11,21 @@ import org.Mockito.*;
  * Created by jeanmiles-plan9 on 12/19/15.
  */
 
-public class VolleyManagerTest extends TestCase {
+public class VolleyManagerTest extends ApplicationTestCase<Application> {
 
-    MockContext mockContext;
+
+
+    public VolleyManagerTest() {
+        super(Application.class);
+    }
 
 
     public void testGetInstance() throws Exception {
-        MockContext mockContext = new MockContext();
-        when(mockContext.getApplicationContext())
-        assertNull(VolleyManager.getInstance(mockContext));
+        assertNotNull(VolleyManager.getInstance(getContext()));
     }
 
     public void testGetRequestQueue() {
-        VolleyManager volleyManager = VolleyManager.getInstance(new MockContext());
+        VolleyManager volleyManager = VolleyManager.getInstance(getContext());
         assertTrue(volleyManager.getRequestQueue() instanceof RequestQueue);
     }
 }

@@ -15,8 +15,6 @@ import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.MovieRequest;
 
-import java.util.List;
-
 /**
  * An activity representing a list of Items. This activity
  * has different presentations for handset and tablet-size devices. On
@@ -148,8 +146,7 @@ public class ItemListActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        List<MovieContent.MovieItem> items = (List<MovieContent.MovieItem>) MovieContent.ITEM_MAP.values();
-        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, items, twoPane);
+        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 

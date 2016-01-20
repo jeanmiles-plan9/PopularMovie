@@ -28,6 +28,6 @@ public class MovieContract {
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RUNTIME = "runtime";
-        public static final String COLUMN_POSTER_URL = "posterUrl";
+        public static final String COLUMN_POSTER = "posterUrl";
     }
 }
