@@ -1,5 +1,6 @@
 package com.example.popularmovie.app.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
 
@@ -9,14 +10,39 @@ import android.text.format.Time;
  */
 public class MovieContract {
 
-    // To make it easy to query for the exact date, we normalize all dates that go into
-    // the database to the start of the the Julian day at UTC.
-    public static long normalizeDate(long startDate) {
-        // normalize the start date to the beginning of the (UTC) day
-        Time time = new Time();
-        time.set(startDate);
-        int julianDay = Time.getJulianDay(startDate, time.gmtoff);
-        return time.setJulianDay(julianDay);
+    public static final String CONTENT_AUTHORITY = "com.example.popularmovie.app";
+    public static final Uri BASE_CONTENT_URL = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final String PATH_MOVIE = "movie";
+    public static final String PATH_REVIEW = "review";
+    public static final String PATH_VIDEO = "video";
+
+
+
+
+    public static final class ReviewEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "review";
+        // foreign key to Movie table
+        public static final String COLUMN_MOVIE_ID = "movieId";
+        // this is review setting string that will be sent to theMovieDB as the movie review query
+        public static final String COLUMN_REVIEW_SETTING = "review_setting";
+        public static final String COLUMN_REVIEW_AUTHOR = "author";
+        public static final String COLUMN_REVIEW = "review";
+    }
+
+    public static final class VideoEntry implements BaseColumns {
+
+        public static final String TABLE_NAME = "video";
+        // foreign key to Movie table
+        public static final String COLUMN_MOVIE_ID = "movieId";
+        // this is review setting string that will be sent to theMovieDB as the movie videos query
+        public static final String COLUMN_VIDEO_SETTING = "video_setting";
+        public static final String COLUMN_KEY = "key";
+        public static final String COLUMN_NAME = "key";
+        public static final String COLUMN_SITE = "site";
+        public static final String COLUMN_SIZE = "site";
+        public static final String COLUMN_TYPE = "type";
     }
 
 

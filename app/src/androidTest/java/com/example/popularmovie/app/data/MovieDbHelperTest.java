@@ -58,7 +58,6 @@ public class MovieDbHelperTest extends AndroidTestCase {
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_RUNTIME);
 
-
         int columnIndex = c.getColumnIndex("name");
         do {
             String columnName = c.getString(columnIndex);
