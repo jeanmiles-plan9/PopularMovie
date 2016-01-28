@@ -1,4 +1,4 @@
-package utils;
+package com.example.popularmovie.app.utils;
 
 import android.content.ContentValues;
 import android.database.ContentObserver;

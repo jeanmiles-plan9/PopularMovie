@@ -12,7 +12,7 @@ import junit.framework.Assert;
 import java.util.HashSet;
 import java.util.Set;
 
-import utils.TestUtilities;
+import com.example.popularmovie.app.utils.TestUtilities;
 
 /**
  * UdaCity Android Nanodegree
