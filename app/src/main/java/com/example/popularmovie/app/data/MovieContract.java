@@ -1,6 +1,7 @@
 package com.example.popularmovie.app.data;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -38,6 +39,10 @@ public class MovieContract {
         public static final String COLUMN_ID = "id";
         public static final String COLUMN_AUTHOR = "author";
         public static final String COLUMN_REVIEW = "review";
+
+        public static Uri buildReviewUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
     public static final class VideoEntry implements BaseColumns {
@@ -62,6 +67,10 @@ public class MovieContract {
         public static final String COLUMN_SITE = "site";
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_TYPE = "type";
+
+        public static Uri buildVideoUri (long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
 
@@ -86,8 +95,16 @@ public class MovieContract {
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_POSTER = "posterUrl";
 
-        public static Uri buildMovieReviewVideo(String movieId, String review, String video) {
-            return CONTENT_URI.buildUpon().appendPath(movieId).appendPath(review).appendPath(video).build();
+        public static Uri buildMovieUri (long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+
+        public static Uri buildMovieReviewVideo(String movieId) {
+            return CONTENT_URI.buildUpon().appendPath(movieId).appendPath(PATH_REVIEW).appendPath(PATH_VIDEO).build();
+        }
+
+        public static String getMovieIdFromUri(Uri uri) {
+            return uri.getPathSegments().get(1);
         }
     }
 

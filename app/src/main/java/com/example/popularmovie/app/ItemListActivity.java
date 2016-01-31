@@ -1,5 +1,8 @@
 package com.example.popularmovie.app;
 
+import android.app.LoaderManager;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +26,7 @@ import com.example.popularmovie.app.volley.MovieRequest;
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class ItemListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
     private static final String MAIN_TITLE = "Pop Movies";
@@ -144,6 +147,22 @@ public class ItemListActivity extends AppCompatActivity {
         grid_scroll_position = savedInstanceState.getInt(GRID_STATE);
         recyclerView.smoothScrollToPosition(grid_scroll_position);
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, MovieContent.ITEMS, twoPane);

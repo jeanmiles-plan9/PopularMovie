@@ -1,14 +1,17 @@
 package com.example.popularmovie.app.utils;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.test.AndroidTestCase;
 
 import com.example.popularmovie.app.data.MovieContract;
+import com.example.popularmovie.app.data.MovieDbHelper;
 
 import java.util.Map;
 import java.util.Set;
@@ -48,6 +51,69 @@ public class TestUtilities extends AndroidTestCase {
         movieValues.put(MovieContract.MovieEntry.COLUMN_RATING,8.5);
         movieValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, 139);
         return movieValues;
+    }
+
+    public static long insertMovieValues(Context mContext) {
+        MovieDbHelper movieDbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        long movieId = 550;
+        ContentValues contentValues = createMovieValues(movieId);
+        long insertRowId = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, contentValues);
+
+        assertTrue("Error:  Failure to insert movie values", insertRowId == movieId);
+
+        return  insertRowId;
+    }
+
+    public static long insertReviewValues(Context mContext) {
+        MovieDbHelper movieDbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        long reviewId = 1234;
+        ContentValues contentValues = createReviewValues(550, reviewId);
+        long insertRowId = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, contentValues);
+
+        assertTrue("Error:  Failure to insert review values", insertRowId == 1);
+
+        return insertRowId;
+    }
+
+    public static ContentValues createReviewValues(long movieId, long reviewId) {
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
+        contentValues.put(MovieContract.ReviewEntry.COLUMN_ID, reviewId);
+        contentValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "author");
+        contentValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW, "movie is not worth the price of the ticket");
+
+        return contentValues;
+    }
+
+    public static long insertVideoValues(Context mContext) {
+        MovieDbHelper movieDbHelper = new MovieDbHelper(mContext);
+        SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+
+        long videoId = 12345;
+        ContentValues contentValues = createVideoValues(550, videoId);
+        long insertRowId = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, contentValues);
+
+        assertTrue("Error:  Failure to insert video values", insertRowId == 1);
+
+        return insertRowId;
+    }
+
+    public static ContentValues createVideoValues(int movieId, long videoId) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieId);
+        contentValues.put(MovieContract.VideoEntry.COLUMN_ID, videoId);
+        contentValues.put(MovieContract.VideoEntry.COLUMN_KEY, 123456);
+        contentValues.put(MovieContract.VideoEntry.COLUMN_NAME, "movie title");
+        contentValues.put(MovieContract.VideoEntry.COLUMN_SITE, "youTube");
+        contentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, "350");
+        contentValues.put(MovieContract.VideoEntry.COLUMN_TYPE, "trailers");
+
+        return contentValues;
     }
 
     /*
