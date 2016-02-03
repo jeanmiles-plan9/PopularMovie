@@ -2,6 +2,7 @@ package com.example.popularmovie.app;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -15,8 +16,6 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.VolleyManager;
 
-import java.util.List;
-
 /**
  * UdaCity Android Nanodegree
  * Created by jeanmiles-plan9 on 12/22/15.
@@ -26,14 +25,14 @@ public class SimpleGridRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleGridRecyclerViewAdapter.ViewHolder> {
 
     private static final String LOG_TAG = SimpleGridRecyclerViewAdapter.class.getSimpleName();
-    private final List<MovieContent.MovieItem> mValues;
     private Context ctx;
     private boolean twoPane;
+    public int imagePosition;
+    Cursor dataCursor;
 
-    public SimpleGridRecyclerViewAdapter(Context context, List<MovieContent.MovieItem> items, boolean twoPane) {
+    public SimpleGridRecyclerViewAdapter(Context context, boolean twoPane) {
         this.ctx = context;
         this.twoPane = twoPane;
-        mValues = items;
     }
 
     @Override
@@ -44,17 +43,24 @@ public class SimpleGridRecyclerViewAdapter
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        if (dataCursor == null || dataCursor.getCount() == 0) return;
+        dataCursor.moveToPosition(position);
         ImageLoader imageLoader = VolleyManager.getInstance(ctx.getApplicationContext()).getImageLoader();
-        holder.mItem = mValues.get(position);
-        holder.mNetworkImageView.setImageUrl(holder.mItem.getPosterUrl(), imageLoader);
-        Log.d(LOG_TAG, "POSITION:" + position + " MOVIE TITLE: " + holder.mItem.title);
+        String posterUrl = MovieContent.getPosterUrl(dataCursor.getString(ItemListActivity.COL_MOVIE_POSTER));
+        if (posterUrl != null || !posterUrl.isEmpty()) {
+            holder.mNetworkImageView.setImageUrl(posterUrl, imageLoader);
+        }
+        Log.d(LOG_TAG, "POSITION:" + position +
+                " MOVIE TITLE: " + dataCursor.getString(ItemListActivity.COL_MOVIE_TITLE) +
+                " MOVIE POSTER: " + dataCursor.getString(ItemListActivity.COL_MOVIE_POSTER));
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // TODO:  CONSIDER MOVING SOME OF THIS CODE INTO ACTIVITY CALLBACK onItemSelected()
                 if (twoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, dataCursor.getString(ItemListActivity.COL_MOVIE_ID));
                     arguments.putBoolean(ItemDetailFragment.ARG_TWOPANE, twoPane);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
@@ -67,28 +73,63 @@ public class SimpleGridRecyclerViewAdapter
                 } else {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, dataCursor.getString(ItemListActivity.COL_MOVIE_ID));
 
                     context.startActivity(intent);
                 }
+                imagePosition = position;
             }
         });
+
     }
 
+    /**
+     * This section of code is for CursorAdapter, since RecyclerView has no options to
+     * to extend from CursorAdapter, the methods implementation is added to support the
+     * same code base as CursorAdapter.
+     **/
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return (dataCursor == null) ? 0 : dataCursor.getCount();
     }
 
+    public Cursor swapCursor(Cursor cursor) {
+        if (dataCursor == cursor) {
+            return null;
+        }
+        Cursor oldCursor = dataCursor;
+        this.dataCursor = cursor;
+        if (cursor != null) {
+            this.notifyDataSetChanged();
+        }
+        return cursor;
+    }
+
+    public void changeCursor(Cursor cursor) {
+        Cursor old = swapCursor(cursor);
+        if (old != null) {
+            old.close();
+        }
+    }
+
+    private Object getItem(int position) {
+        if (dataCursor != null) {
+            dataCursor.moveToPosition(position);
+            return dataCursor;
+        } else {
+            return null;
+        }
+    }
+
+    //  ViewHolder for RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final NetworkImageView mNetworkImageView;
-        public MovieContent.MovieItem mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mNetworkImageView = (NetworkImageView) view.findViewById(R.id.movie_item_image);
         }
-     }
+    }
 }

@@ -5,6 +5,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 
 /**
@@ -53,7 +54,8 @@ public class GridLayoutScrollListener extends RecyclerView.OnScrollListener {
             Log.d(LOG_TAG, "totalItemCount:" + totalItemCount + " visibleItemCount:" + visibleItemCount +
                     " lastVisibleItem:" + lastVisibleItem + " visibleThreshold:" + visibleThreshold +
                     " ");
-            int page = MovieContent.LATEST_PAGE_RESULT;
+            int page = MovieContent.getMovieSortOrder() == MovieSortOrder.POPULAR ?
+                    MovieContent.LATEST_PAGE_RESULT_POPULAR : MovieContent.LATEST_PAGE_RESULT_RATING;
 
             loadMore(++page);
 

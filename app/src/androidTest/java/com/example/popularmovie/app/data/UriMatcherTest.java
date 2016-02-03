@@ -22,7 +22,7 @@ public class UriMatcherTest extends AndroidTestCase {
 
         assertNotNull(uriMatcher);
         assertEquals("Error: expected Movie Discover Uri", uriMatcher.match(TEST_MOVIE), MovieProvider.MOVIE);
-        assertEquals("Error: expected Movie Review Video Uri", uriMatcher.match(TEST_MOVIE_WITH_REVIEW_MOVIES), MovieProvider.MOVIE_WITH_REVIEW_VIDEO);
+        assertEquals("Error: expected Movie ReviewContent Video Uri", uriMatcher.match(TEST_MOVIE_WITH_REVIEW_MOVIES), MovieProvider.MOVIE_WITH_REVIEW_VIDEO);
 
     }
 

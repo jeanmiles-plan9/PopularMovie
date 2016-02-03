@@ -1,18 +1,15 @@
 package com.example.popularmovie.app.content;
 
+import android.content.ContentValues;
 import android.util.Log;
 
 import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.common.MovieUrlBuilder;
+import com.example.popularmovie.app.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Helper class for providing movie content for user interfaces created by
@@ -23,21 +20,24 @@ public class MovieContent {
 
     public static String LOG_TAG = MovieContent.class.getSimpleName();
 
-    public static final List<MovieItem> ITEMS = new ArrayList<MovieItem>();
-    /**
-     * A map of movie items, by ID.
-     */
-    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<String, MovieItem>();
+//    public static final List<MovieItem> ITEMS = new ArrayList<MovieItem>();
+//    /**
+//     * A map of movie items, by ID.
+//     */
+//    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<String, MovieItem>();
+
 
     /*
      * Latest page result retrieved
      */
-    public static int LATEST_PAGE_RESULT = 1;
-
+    public static int LATEST_PAGE_RESULT_POPULAR = 0;
+    public static int LATEST_PAGE_RESULT_RATING = 0;
     /*
      * Set sort order of movies - default is popular
      */
     private static MovieSortOrder movieOrder = MovieSortOrder.POPULAR;
+    final private static String POSTER_SIZE = "w185";
+    final private static String BACKDROP_SIZE = "w92";
 
     // names of JSON objects
     final static String MOVIE_PAGE = "page";
@@ -46,6 +46,7 @@ public class MovieContent {
     final static String MOVIE_OVERVIEW = "overview";
     final static String MOVIE_RELEASE_DATE = "release_date";
     final static String MOVIE_ID = "id";
+    private static final String MOVIE_POPULARITY = "popularity";
     final static String MOVIE_TITLE = "title";
     final static String MOVIE_BACKDROP_PATH = "backdrop_path";
     final static String MOVIE_VOTE_AVERAGE = "vote_average";
@@ -59,42 +60,10 @@ public class MovieContent {
 
 
     /*
-     * This method create MovieItems from JsonObject and set the sort order.  If the sort order has changed then the arraylist is
-     * cleared.
+     * This method gets the movie sort order
      */
-    public static void createMovieItems(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
-        try {
-            // if different sort order is return from request then clear array before loading movieitems in
-            if (movieOrder != sortOrder) {
-                clearMovies();
-            }
-            // parse out the Json response into MovieItems
-            JSONArray movieArray = movieJsonObject.getJSONArray(MOVIE_RESULTS);
-            LATEST_PAGE_RESULT = movieJsonObject.getInt(MOVIE_PAGE);
-            for (int index = 0; index < movieArray.length(); index++) {
-                MovieItem movieItem = new MovieItem();
-                JSONObject jsonMovie = movieArray.getJSONObject(index);
-                movieItem.id = jsonMovie.getString(MOVIE_ID);
-                movieItem.title = jsonMovie.getString(MOVIE_TITLE);
-                movieItem.overview = jsonMovie.getString(MOVIE_OVERVIEW);
-                movieItem.releaseDate = jsonMovie.getString(MOVIE_RELEASE_DATE);
-                movieItem.rating = jsonMovie.getDouble(MOVIE_VOTE_AVERAGE);
-                movieItem.setPosterUrl(jsonMovie.getString(MOVIE_POSTER_PATH));
-                ITEMS.add(movieItem);
-                ITEM_MAP.put(movieItem.id, movieItem);
-                Log.d(LOG_TAG, "movie id is " + movieItem.id + " movie title " + movieItem.title);
-            }
-            setMovieSortOrder(sortOrder);
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage());
-        }
-    }
-
-    /*
-     * This method clears the arraylist
-     */
-    public static void clearMovies() {
-        ITEM_MAP.clear();
+    public static MovieSortOrder getMovieSortOrder() {
+        return movieOrder;
     }
 
     /*
@@ -104,23 +73,62 @@ public class MovieContent {
         movieOrder = sortOrder;
     }
 
-    /*
-     * This method gets the movie sort order
-     */
-    public static MovieSortOrder getMovieSortOrder() {
-        return movieOrder;
+    public static ContentValues[] updateMovieTable(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
+        ContentValues[] contentValuesArray = null;
+        try {
+            // parse out the Json response into MovieItems
+            JSONArray movieArray = movieJsonObject.getJSONArray(MOVIE_RESULTS);
+            contentValuesArray = new ContentValues[movieArray.length()];
+            // update page result so app can keep track what is the next page to retrieve next
+
+            LATEST_PAGE_RESULT_POPULAR = sortOrder == MovieSortOrder.POPULAR ? movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_POPULAR;
+            LATEST_PAGE_RESULT_RATING = sortOrder == MovieSortOrder.RATING ? movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_RATING;
+
+            for (int index = 0; index < movieArray.length(); index++) {
+                JSONObject jsonMovie = movieArray.getJSONObject(index);
+                String movieId = jsonMovie.getString(MOVIE_ID);
+                double popularity = jsonMovie.getDouble(MOVIE_POPULARITY);
+                String title = jsonMovie.getString(MOVIE_TITLE);
+                String overview = jsonMovie.getString(MOVIE_OVERVIEW);
+                String releaseDate = jsonMovie.getString(MOVIE_RELEASE_DATE);
+                double rating = jsonMovie.getDouble(MOVIE_VOTE_AVERAGE);
+                String poster = jsonMovie.getString(MOVIE_POSTER_PATH);
+                Log.d(LOG_TAG, sortOrder + " movie id is " + movieId + " movie title " + title + " poster " + poster);
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_ID,Integer.parseInt(movieId));
+                contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, popularity);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, rating);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, overview);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, "");
+                contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, poster);
+
+                contentValuesArray[index] = contentValues;
+            }
+
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+        return contentValuesArray;
     }
 
-    public static void createMovieReviews(JSONObject response) {
+    public static String createPosterUrl(String path) {
+        return MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
+    }
+
+    public static void updateReviewTable(JSONObject response) {
         try {
-            MovieItem item = ITEM_MAP.get(response.getString(MOVIE_ID));
-            if (item != null) {
-                item.runtime = response.getInt(MOVIE_RUNTIME);
+            String movieId = (response.getString(MOVIE_ID));
+            if (movieId != null) {
+                int runtime = response.getInt(MOVIE_RUNTIME);
                 JSONObject reviews = response.getJSONObject(MOVIE_REVIEWS);
                 JSONArray results = reviews.getJSONArray(MOVIE_RESULTS);
                 for (int index = 0; index < results.length(); index++) {
                     JSONObject review = results.getJSONObject(index);
-                    item.addReview(review.getString(MOVIE_AUTHOR), review.getString(MOVIE_CONTENT));
+                    String author = review.getString(MOVIE_AUTHOR);
+                    String content= review.getString(MOVIE_CONTENT);
                 }
             }
         } catch (JSONException e) {
@@ -129,15 +137,16 @@ public class MovieContent {
 
     }
 
-    public static void createMovieVideos(JSONObject response) {
+    public static void updateVideoTable(JSONObject response) {
         try {
-            MovieItem item = ITEM_MAP.get(response.getString(MOVIE_ID));
-            if (item != null) {
-                item.runtime = response.getInt(MOVIE_RUNTIME);
+            String movieId = response.getString(MOVIE_ID);
+            if (movieId != null) {
+                int runtime = response.getInt(MOVIE_RUNTIME);
                 JSONArray movieArray = response.getJSONObject(MOVIE_VIDEOS).getJSONArray(MOVIE_RESULTS);
                 for (int index = 0; index < movieArray.length(); index++) {
                     JSONObject jsonMovie = movieArray.getJSONObject(index);
-                    item.addTrailer(jsonMovie.getString(MOVIE_KEY), jsonMovie.getString(MOVIE_SITE));
+                    String key = jsonMovie.getString(MOVIE_KEY);
+                    String site = jsonMovie.getString(MOVIE_SITE);
                 }
             }
         } catch (JSONException e) {
@@ -145,60 +154,12 @@ public class MovieContent {
         }
 
     }
-
-    /**
-     * A movie item representing a piece of content.
-     */
-    public static class MovieItem {
-        final private static String POSTER_SIZE = "w185";
-        final private static String BACKDROP_SIZE = "w92";
-
-        public String id;
-        public String title;
-        public double rating;
-        public String releaseDate;
-        public String overview;
-        public int runtime;  /* in minutes */
-        public List<String> trailers;
-        public List<Review> reviews;
-        public String poster;
-        private String posterUrl;
-
-
-        public MovieItem() {
-        }
-
-        public String getReleaseYear() {
-            String year = null;
-            if (releaseDate != null) {
-                String[] tokens = releaseDate.split("-");
-                year = tokens.length > 0 ? tokens[0] : "";
-            }
-            return year;
-        }
-
-        public String getPosterUrl() {
-            return posterUrl;
-        }
-
-
-        public void setPosterUrl(String path) {
-            posterUrl = MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
-        }
-
-        public void addTrailer(String key, String site) {
-            if (trailers == null) {
-                trailers = new ArrayList<String>();
-            }
-            trailers.add("https://www." + site + ".com/watch?v=" + key);
-        }
-
-        public void addReview(String author, String content) {
-            if (reviews == null) {
-                reviews = new ArrayList<Review>();
-            }
-            Review review = new Review(author, content);
-            reviews.add(review);
-        }
+    /*
+        * This method updates Movie table from JsonObject and set the sort order.  If the sort order has changed then the arraylist is
+        * cleared.
+        */
+    public static String getPosterUrl(String poster) {
+        return MovieUrlBuilder.createImageUrl(poster, POSTER_SIZE);
     }
+
 }

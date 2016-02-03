@@ -1,5 +1,6 @@
 package com.example.popularmovie.app;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.volley.VolleyManager;
 
 /**
@@ -34,7 +34,7 @@ public class ItemDetailFragment extends Fragment {
     /**
      * The movie content this fragment is presenting.
      */
-    private MovieContent.MovieItem mItem;
+//    private MovieContent.MovieItem mItem;
     private boolean twoPane;
 
     /**
@@ -44,6 +44,7 @@ public class ItemDetailFragment extends Fragment {
     public ItemDetailFragment() {
     }
 
+    private Cursor dataCursor;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class ItemDetailFragment extends Fragment {
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             // Load the movie content specified by the fragment
             // arguments.
-            mItem = MovieContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+//            mItem = MovieContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
             twoPane = getArguments().getBoolean(ARG_TWOPANE);
         }
     }
@@ -66,15 +67,15 @@ public class ItemDetailFragment extends Fragment {
             LinearLayout linearLayout = (LinearLayout) rootView.findViewById(R.id.movie_item_detail);
             linearLayout.getLayoutParams().height = 400;
         }
-
+        Object data = new Object();  // TODO: should be dataCursor
         // Show the movie content as text in a TextView.
-        if (mItem != null) {
-            ((NetworkImageView) rootView.findViewById(R.id.movie_item_image)).setImageUrl(mItem.getPosterUrl(), imageLoader);
-            ((TextView) rootView.findViewById(R.id.movie_title)).setText(mItem.title);
-            ((TextView) rootView.findViewById(R.id.movie_item_release_year)).setText(mItem.getReleaseYear());
-            ((TextView) rootView.findViewById(R.id.movie_item_rating)).setText(mItem.rating + "/10");
-            ((TextView) rootView.findViewById(R.id.movie_item_overview)).setText(mItem.overview);
-        }
+        if (data != null) {
+            ((NetworkImageView) rootView.findViewById(R.id.movie_item_image)).setImageUrl("", imageLoader);
+            ((TextView) rootView.findViewById(R.id.movie_title)).setText("title");
+            ((TextView) rootView.findViewById(R.id.movie_item_release_year)).setText("12/12/2001");
+            ((TextView) rootView.findViewById(R.id.movie_item_rating)).setText(4.9 + "/10");
+            ((TextView) rootView.findViewById(R.id.movie_item_overview)).setText("great movie");
+    }
 
         return rootView;
     }

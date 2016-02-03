@@ -13,15 +13,64 @@ import android.util.Log;
 
 import com.example.popularmovie.app.utils.TestUtilities;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-
 /**
  * Created by jeanettetakaoka-miles on 1/27/16.
  */
 public class MovieProviderTest extends AndroidTestCase {
 
     private static final String LOG_TAG = MovieProviderTest.class.getSimpleName();
+    private static final int BULK_INSERT_COUNT = 10;
+
+    static ContentValues[] createBulkInsertMovieValues() {
+
+        ContentValues[] listContentValues = new ContentValues[BULK_INSERT_COUNT];
+        for (int i = 0; i < BULK_INSERT_COUNT; i++) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MovieContract.MovieEntry.COLUMN_ID, 550 + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, 50.000000 + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, "SuperHero" + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "January 19, 2016");
+            contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, "/D6e8RJf2qUstnfkTslTXNTUAlT.jpg" + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "movie lacks a plot" + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, 8.5446 + i);
+            contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, 139 + i);
+            listContentValues[i] = contentValues;
+        }
+        return listContentValues;
+    }
+
+    public void testBulkInsert() {
+        ContentValues[] contentValuesList = createBulkInsertMovieValues();
+
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.MovieEntry.CONTENT_URI, true, tco);
+
+
+        int insertCount = mContext.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValuesList);
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+
+        assertEquals(insertCount, BULK_INSERT_COUNT);
+
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                null,
+                null,
+                MovieContract.MovieEntry.COLUMN_ID + " ASC");
+
+        assertEquals(cursor.getCount(), BULK_INSERT_COUNT);
+
+        cursor.moveToFirst();
+
+        for (int i = 0; i < BULK_INSERT_COUNT; i++, cursor.moveToNext()) {
+            TestUtilities.validateCurrentRecord(
+                    "testBulkInsert. Error validating movie entry " + i,
+                    cursor, contentValuesList[i]);
+        }
+        cursor.close();
+
+    }
 
     public void deleteAllRecordsFromDB() {
         MovieDbHelper dbHelper = new MovieDbHelper(mContext);
@@ -135,7 +184,7 @@ public class MovieProviderTest extends AndroidTestCase {
                 null,
                 null,
                 null);
-        TestUtilities.validateCursor("test insert Review records",
+        TestUtilities.validateCursor("test insert ReviewContent records",
                 reviewCursor, reviewValues);
 
         // create videos

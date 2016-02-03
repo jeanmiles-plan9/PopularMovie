@@ -88,12 +88,13 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "movie";
         public static final String COLUMN_ID = "id";
+        public static final String COLUMN_POPULARITY = "popularity";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_RATING = "rating";
         public static final String COLUMN_RELEASE_DATE = "releaseDate";
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RUNTIME = "runtime";
-        public static final String COLUMN_POSTER = "posterUrl";
+        public static final String COLUMN_POSTER = "poster";
 
         public static Uri buildMovieUri (long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

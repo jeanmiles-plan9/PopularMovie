@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
+import com.example.popularmovie.app.utils.TestUtilities;
+
 import junit.framework.Assert;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import com.example.popularmovie.app.utils.TestUtilities;
 
 /**
  * UdaCity Android Nanodegree
@@ -56,12 +56,15 @@ public class MovieDbHelperTest extends AndroidTestCase {
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_POSTER);
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_RATING);
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_RELEASE_DATE);
+        movieColumnSet.add(MovieContract.MovieEntry.COLUMN_POPULARITY);
         movieColumnSet.add(MovieContract.MovieEntry.COLUMN_RUNTIME);
 
         int columnIndex = c.getColumnIndex("name");
+        int columnIndexCid = c.getColumnIndex("cid");
         do {
             String columnName = c.getString(columnIndex);
-            Log.d(LOG_TAG, columnName);
+            int columnNameIndex = c.getInt(columnIndexCid);
+            Log.d(LOG_TAG, columnName + " at index " + columnNameIndex);
             movieColumnSet.remove(columnName);
         } while(c.moveToNext());
 

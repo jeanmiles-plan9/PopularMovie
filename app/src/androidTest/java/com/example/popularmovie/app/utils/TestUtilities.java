@@ -35,20 +35,36 @@ public class TestUtilities extends AndroidTestCase {
             int idx = valueCursor.getColumnIndex(columnName);
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
-            assertEquals("Value '" + entry.getValue().toString() +
-                    "' did not match the expected value '" +
-                    expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+            boolean isString = true;
+            if (entry.getValue() instanceof Double) {
+                isString = false;
+            }
+
+            if (isString) {
+                assertEquals("Value '" + entry.getValue().toString() +
+                                "' did not match the expected value '" +
+                                expectedValue + "'. " + error,
+                        expectedValue,
+                        valueCursor.getString(idx));
+            } else {
+                Double expectedDouble = Double.valueOf(expectedValue);
+                assertEquals("Value '" + entry.getValue().toString() +
+                        "' did not match the expected value '" +
+                        expectedValue + "'. " + error, expectedDouble, valueCursor.getDouble(idx));
+            }
+
         }
     }
 
     public static ContentValues createMovieValues(long movieRowId) {
         ContentValues movieValues = new ContentValues();
         movieValues.put(MovieContract.MovieEntry.COLUMN_ID, movieRowId);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, 52.881698);
         movieValues.put(MovieContract.MovieEntry.COLUMN_TITLE, "SuperHero");
         movieValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "January 19, 2016");
-        movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER,"postername");
-        movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW,"movie lacks a plot");
-        movieValues.put(MovieContract.MovieEntry.COLUMN_RATING,8.5);
+        movieValues.put(MovieContract.MovieEntry.COLUMN_POSTER, "/D6e8RJf2qUstnfkTslTXNTUAlT.jpg");
+        movieValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "movie lacks a plot");
+        movieValues.put(MovieContract.MovieEntry.COLUMN_RATING, 8.5446);
         movieValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, 139);
         return movieValues;
     }
@@ -63,7 +79,7 @@ public class TestUtilities extends AndroidTestCase {
 
         assertTrue("Error:  Failure to insert movie values", insertRowId == movieId);
 
-        return  insertRowId;
+        return insertRowId;
     }
 
     public static long insertReviewValues(Context mContext) {

@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by jeanettetakaoka-miles on 1/27/16.
@@ -16,6 +17,7 @@ import android.support.annotation.Nullable;
 public class MovieProvider extends ContentProvider {
 
     private static final UriMatcher uriMatcher = buildUriMatcher();
+    private static final String LOG_TAG = MovieProvider.class.getSimpleName();
     private MovieDbHelper movieDbHelper;
 
     static final int MOVIE = 100;
@@ -161,6 +163,7 @@ public class MovieProvider extends ContentProvider {
                 if (id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(id);
                 } else {
+                    Log.d(LOG_TAG, "Content values that failed " + values.toString());
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }
                 break;
@@ -258,6 +261,35 @@ public class MovieProvider extends ContentProvider {
         }
 
         return rowUpdated;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        final SQLiteDatabase db = movieDbHelper.getWritableDatabase();
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case MOVIE: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        Log.d(LOG_TAG, "record to be inserted " + value.toString());
+                        long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        if (id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+
+            }
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 
     // You do not need to call this method. This is a method specifically to assist the testing
