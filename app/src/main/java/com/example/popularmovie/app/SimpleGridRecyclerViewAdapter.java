@@ -3,6 +3,7 @@ package com.example.popularmovie.app;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -13,7 +14,9 @@ import android.view.ViewGroup;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
+import com.example.popularmovie.app.common.MovieConstant;
 import com.example.popularmovie.app.content.MovieContent;
+import com.example.popularmovie.app.data.MovieContract;
 import com.example.popularmovie.app.volley.VolleyManager;
 
 /**
@@ -47,20 +50,24 @@ public class SimpleGridRecyclerViewAdapter
         if (dataCursor == null || dataCursor.getCount() == 0) return;
         dataCursor.moveToPosition(position);
         ImageLoader imageLoader = VolleyManager.getInstance(ctx.getApplicationContext()).getImageLoader();
-        String posterUrl = MovieContent.getPosterUrl(dataCursor.getString(ItemListActivity.COL_MOVIE_POSTER));
+        String posterUrl = MovieContent.getPosterUrl(dataCursor.getString(MovieConstant.COL_MOVIE_POSTER));
         if (posterUrl != null || !posterUrl.isEmpty()) {
             holder.mNetworkImageView.setImageUrl(posterUrl, imageLoader);
         }
-        Log.d(LOG_TAG, "POSITION:" + position +
-                " MOVIE TITLE: " + dataCursor.getString(ItemListActivity.COL_MOVIE_TITLE) +
-                " MOVIE POSTER: " + dataCursor.getString(ItemListActivity.COL_MOVIE_POSTER));
+//        Log.d(LOG_TAG, "POSITION:" + position +
+//                " MOVIE TITLE: " + dataCursor.getString(MovieConstant.COL_MOVIE_TITLE) +
+//                " MOVIE POSTER: " + dataCursor.getString(MovieConstant.COL_MOVIE_POSTER));
+        final String movieId = dataCursor.getString(MovieConstant.COL_MOVIE_ID);
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // TODO:  CONSIDER MOVING SOME OF THIS CODE INTO ACTIVITY CALLBACK onItemSelected()
+                Uri contentUri = MovieContract.MovieEntry.buildMovieReviewVideo(movieId);
+                Log.d(LOG_TAG, " Detail content uri " + contentUri.toString());
                 if (twoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_ITEM_ID, dataCursor.getString(ItemListActivity.COL_MOVIE_ID));
+                    arguments.putString(ItemDetailFragment.ARG_MOVIE_ID, movieId);
+                    arguments.putParcelable(ItemDetailFragment.ARG_DETAIL_URI, contentUri);
                     arguments.putBoolean(ItemDetailFragment.ARG_TWOPANE, twoPane);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
@@ -73,7 +80,8 @@ public class SimpleGridRecyclerViewAdapter
                 } else {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, dataCursor.getString(ItemListActivity.COL_MOVIE_ID));
+                    intent.setData(contentUri);
+                    intent.putExtra(ItemDetailFragment.ARG_MOVIE_ID, movieId);
 
                     context.startActivity(intent);
                 }

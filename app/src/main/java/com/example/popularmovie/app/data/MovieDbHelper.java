@@ -34,9 +34,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                         ReviewEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
                         ReviewEntry.COLUMN_AUTHOR + " TEXT NOT NULL, " +
                         ReviewEntry.COLUMN_REVIEW + " TEXT NOT NULL,  " +
-                        " PRIMARY KEY (" + ReviewEntry.COLUMN_ID + ","
-                        + ReviewEntry.COLUMN_MOVIE_ID + ")" +
-                        ");";
+                        " PRIMARY KEY (" + ReviewEntry.COLUMN_ID + ")," +
+                        "FOREIGN KEY (" + ReviewEntry.COLUMN_MOVIE_ID +
+                        ") references movie (" + MovieEntry.COLUMN_ID +
+                        ") on update cascade on delete cascade);";
 
         Log.d(LOG_TAG, SQL_CREATE_REVIEW_TABLE);
 
@@ -51,9 +52,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                         VideoEntry.COLUMN_SITE + " TEXT NOT NULL,  " +
                         VideoEntry.COLUMN_SIZE + " TEXT NOT NULL,  " +
                         VideoEntry.COLUMN_TYPE + " TEXT NOT NULL,  " +
-                        " PRIMARY KEY (" + VideoEntry.COLUMN_ID + ","
-                        + VideoEntry.COLUMN_MOVIE_ID + ")" +
-                        ");";
+                        " PRIMARY KEY (" + VideoEntry.COLUMN_ID + ")," +
+                        "FOREIGN KEY (" + VideoEntry.COLUMN_MOVIE_ID +
+                        ") references movie (" + MovieEntry.COLUMN_ID +
+                        ") on update cascade on delete cascade);";
 
         Log.d(LOG_TAG, SQL_CREATE_VIDEO_TABLE);
 

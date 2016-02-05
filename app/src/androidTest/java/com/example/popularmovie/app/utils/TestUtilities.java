@@ -90,7 +90,7 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues contentValues = createReviewValues(550, reviewId);
         long insertRowId = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, contentValues);
 
-        assertTrue("Error:  Failure to insert review values", insertRowId == 1);
+        assertTrue("Error:  Failure to insert review values", insertRowId == reviewId);
 
         return insertRowId;
     }
@@ -114,7 +114,7 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues contentValues = createVideoValues(550, videoId);
         long insertRowId = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, contentValues);
 
-        assertTrue("Error:  Failure to insert video values", insertRowId == 1);
+        assertTrue("Error:  Failure to insert video values", insertRowId == videoId);
 
         return insertRowId;
     }

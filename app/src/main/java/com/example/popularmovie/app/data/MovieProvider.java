@@ -23,22 +23,23 @@ public class MovieProvider extends ContentProvider {
     static final int MOVIE = 100;
     static final int MOVIE_WITH_REVIEW_VIDEO = 101;
     static final int REVIEW = 200;
+    static final int REVIEW_WITH_MOVIEID = 201;
     static final int VIDEO = 300;
+    static final int VIDEO_WITH_MOVIEID = 301;
     static final String MOVIE_ALIAS = "m";
 
     private static final SQLiteQueryBuilder movieWithReviewVideoQueryBuilder;
 
     static {
         movieWithReviewVideoQueryBuilder = new SQLiteQueryBuilder();
-
+        //SELECT m.id, popularity, title, releaseDate, poster, overview, rating, runtime, r.id, r.movieId, author, review, v.id, v.movieId, key, name, site, size, type FROM movie AS m INNER JOIN review AS r ON m.id = r.movieId INNER JOIN video AS v ON m.id = v.movieId WHERE (m.id = 1 )
         movieWithReviewVideoQueryBuilder.setTables(MovieContract.MovieEntry.TABLE_NAME +
-                " AS " + MOVIE_ALIAS + " INNER JOIN " + MovieContract.ReviewEntry.TABLE_NAME +
+                " AS " + MOVIE_ALIAS + " LEFT JOIN " + MovieContract.ReviewEntry.TABLE_NAME +
                 " AS r ON " + MOVIE_ALIAS + "." + MovieContract.MovieEntry.COLUMN_ID +
                 " = r." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID +
-                " INNER JOIN " + MovieContract.VideoEntry.TABLE_NAME +
+                " LEFT JOIN " + MovieContract.VideoEntry.TABLE_NAME +
                 " AS v ON " + MOVIE_ALIAS + "." + MovieContract.MovieEntry.COLUMN_ID +
                 " = v." + MovieContract.VideoEntry.COLUMN_MOVIE_ID);
-
     }
 
 
@@ -50,6 +51,8 @@ public class MovieProvider extends ContentProvider {
                 + MovieContract.PATH_REVIEW + "/" + MovieContract.PATH_VIDEO, MOVIE_WITH_REVIEW_VIDEO);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_REVIEW, REVIEW);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_VIDEO, VIDEO);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_REVIEW + "/*", REVIEW_WITH_MOVIEID);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY, MovieContract.PATH_VIDEO + "/*", VIDEO_WITH_MOVIEID);
 
         return uriMatcher;
     }
@@ -159,7 +162,8 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             case MOVIE: {
-                long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                long id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, values,
+                        SQLiteDatabase.CONFLICT_IGNORE);
                 if (id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(id);
                 } else {
@@ -169,7 +173,8 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             case REVIEW: {
-                long id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
+                long id = db.insertWithOnConflict(MovieContract.ReviewEntry.TABLE_NAME, null, values,
+                        SQLiteDatabase.CONFLICT_IGNORE);
                 if (id > 0) {
                     returnUri = MovieContract.ReviewEntry.buildReviewUri(id);
                 } else {
@@ -178,7 +183,8 @@ public class MovieProvider extends ContentProvider {
                 break;
             }
             case VIDEO: {
-                long id = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, values);
+                long id = db.insertWithOnConflict(MovieContract.VideoEntry.TABLE_NAME, null, values,
+                        SQLiteDatabase.CONFLICT_IGNORE);
                 if (id > 0) {
                     returnUri = MovieContract.VideoEntry.buildVideoUri(id);
                 } else {
@@ -274,7 +280,8 @@ public class MovieProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         Log.d(LOG_TAG, "record to be inserted " + value.toString());
-                        long id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, value);
+                        long id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, value,
+                                SQLiteDatabase.CONFLICT_IGNORE);
                         if (id != -1) {
                             returnCount++;
                         }
@@ -287,9 +294,48 @@ public class MovieProvider extends ContentProvider {
                 return returnCount;
 
             }
+            case REVIEW_WITH_MOVIEID: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        Log.d(LOG_TAG, "record to be inserted " + value.toString());
+                        long id = db.insertWithOnConflict(MovieContract.ReviewEntry.TABLE_NAME, null, value,
+                                SQLiteDatabase.CONFLICT_IGNORE);
+                        if (id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
+            case VIDEO_WITH_MOVIEID: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        Log.d(LOG_TAG, "record to be inserted " + value.toString());
+                        long id = db.insertWithOnConflict(MovieContract.VideoEntry.TABLE_NAME, null, value,
+                                SQLiteDatabase.CONFLICT_IGNORE);
+                        if (id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
             default:
                 return super.bulkInsert(uri, values);
         }
+
     }
 
     // You do not need to call this method. This is a method specifically to assist the testing

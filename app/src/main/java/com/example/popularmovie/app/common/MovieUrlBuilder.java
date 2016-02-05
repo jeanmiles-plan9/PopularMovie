@@ -28,8 +28,9 @@ public class MovieUrlBuilder {
     private final static String MOVIEDB_PATH_MOVIE = "movie";
     private final static String MOVIEDB_PATH_DISCOVER = "discover";
     private final static String MOVIEDB_QUERY_PAGE = "page";
-    private static final String MOVIEDB_PATH_REVIEWS = "reviews";
-    private static final String MOVIEDB_PATH_VIDEOS = "videos" ;
+    private static final String MOVIEDB_QUERY_REVIEWS = "reviews";
+    private static final String MOVIEDB_QUERY_VIDEOS = "videos" ;
+    private static final String MOVIEDB_QUERY_VIDEOS_REVIEWS = "videos, reviews" ;
 
     /* categories keywords */
     private final static String MOVIEDB_SORT_BY = "sort_by";
@@ -78,6 +79,22 @@ public class MovieUrlBuilder {
     }
 
     /*
+ * This method creates a Url for fetching videos and reviews for a movie
+*/
+    public static String createUriMovieDetailsVideosAndReviews(String movieId) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(MOVIEDB_BASE_URL_HTTPS_SCHEME);
+        builder.authority(MOVIEDB_BASE_URL_AUTHORITY);
+        builder.appendPath(MOVIEDB_VERSION);
+        builder.appendPath(MOVIEDB_PATH_MOVIE);
+        builder.appendPath(movieId);
+        builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
+        builder.appendQueryParameter(MOVIEDB_QUERY_APPEND_TO_RESPONSE,MOVIEDB_QUERY_VIDEOS_REVIEWS);
+        Log.d(LOG_TAG, builder.toString());
+        return builder.toString();
+    }
+
+    /*
      * This method creates a Url for fetching trailers for a movie
     */
     public static String createUriMovieDetailsAndTrailers(String movieId) {
@@ -88,7 +105,7 @@ public class MovieUrlBuilder {
         builder.appendPath(MOVIEDB_PATH_MOVIE);
         builder.appendPath(movieId);
         builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
-        builder.appendQueryParameter(MOVIEDB_QUERY_APPEND_TO_RESPONSE,MOVIEDB_PATH_VIDEOS);
+        builder.appendQueryParameter(MOVIEDB_QUERY_APPEND_TO_RESPONSE, MOVIEDB_QUERY_VIDEOS);
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();
     }
@@ -104,7 +121,7 @@ public class MovieUrlBuilder {
         builder.appendPath(MOVIEDB_VERSION);
         builder.appendPath(MOVIEDB_PATH_MOVIE);
         builder.appendPath(movieId);
-        builder.appendPath(MOVIEDB_PATH_REVIEWS);
+        builder.appendPath(MOVIEDB_QUERY_REVIEWS);
         builder.appendQueryParameter(MOVIEDB_API_KEY, MOVIEDB_QUERY_API_KEY);
         Log.d(LOG_TAG, builder.toString());
         return builder.toString();

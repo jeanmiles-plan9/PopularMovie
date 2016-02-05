@@ -1,11 +1,13 @@
 <!--<TextView xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:tools="http://schemas.android.com/tools"--><!--android:id="@+id/item_detail"--><!--style="?android:attr/textAppearanceLarge"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:padding="16dp"--><!--android:textIsSelectable="true"--><!--tools:context="com.example.popularmovie.app.ItemDetailFragment" />-->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/movie_item_detail_content"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:context=".ItemDetailActivity">
 
     <TextView
         android:id="@+id/movie_title"
@@ -75,6 +77,7 @@
     <ScrollView xmlns:app="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/movie_item_overview_scrollview"
         app:orientation="vertical"
         android:layout_below="@+id/movie_item_detail">
 
@@ -88,5 +91,13 @@
             android:layout_marginBottom="@dimen/text_margin"
             android:textSize="14sp" />
     </ScrollView>
+
+    <ExpandableListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movie_item_overview_scrollview"
+        android:id="@+id/expand_list_trailers_reviews">
+    </ExpandableListView>
+
 </RelativeLayout>
 

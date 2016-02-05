@@ -29,7 +29,7 @@ public class MovieRequest {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUrlFetchMostPopularMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                ContentValues[] contentValues = MovieContent.updateMovieTable(response, MovieSortOrder.POPULAR);
+                ContentValues[] contentValues = MovieContent.insertMovieTable(response, MovieSortOrder.POPULAR);
                 int inserted = 0;
                 if (contentValues.length > 0) {
                     inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
@@ -39,7 +39,7 @@ public class MovieRequest {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "network error " + error.getMessage());
+                Log.e(LOG_TAG, "Error: Volley Network error " + error.getMessage());
             }
         });
 
@@ -52,7 +52,7 @@ public class MovieRequest {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchHighestRatedMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                ContentValues[] contentValues = MovieContent.updateMovieTable(response, MovieSortOrder.RATING);
+                ContentValues[] contentValues = MovieContent.insertMovieTable(response, MovieSortOrder.RATING);
                 int inserted = 0;
                 if (contentValues.length > 0) {
                     inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
@@ -62,7 +62,7 @@ public class MovieRequest {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "network error " + error.getMessage());
+                Log.e(LOG_TAG, "Error: Volley Network error " + error.getMessage());
             }
         });
 
@@ -70,41 +70,44 @@ public class MovieRequest {
     }
 
 
-    public void fetchMovieTrailers(Context context, int page, final String movieId) {
+    public void fetchMovieVideosReviews(final Context context, final String movieId) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriMovieDetailsAndTrailers(movieId), null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriMovieDetailsVideosAndReviews(movieId), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                MovieContent.updateReviewTable(response);
-                // TODO: 1/10/16  update here to notify to update ui, how ???
                 Log.d(LOG_TAG, response.toString());
+
+                ContentValues contentValuesMovie = MovieContent.updateMovieTable(response);
+                int updated = 0;
+                if (contentValuesMovie.containsKey(MovieContract.MovieEntry.COLUMN_RUNTIME)) {
+                    updated = context.getContentResolver().update(
+                            MovieContract.MovieEntry.CONTENT_URI,
+                            contentValuesMovie, MovieContract.MovieEntry.COLUMN_ID + "= ?",
+                            new String[] {movieId});
+                    Log.d(LOG_TAG, "Movie table update completed" + movieId  + " updated " + updated);
+                }
+
+                int inserted = 0;
+                ContentValues[] contentValuesReview = MovieContent.insertReviewTable(response);
+                if (contentValuesReview != null && contentValuesReview.length > 0) {
+                    inserted = context.getContentResolver().bulkInsert(MovieContract.ReviewEntry.buildReviewUriWithMovieId(Long.parseLong(movieId)), contentValuesReview);
+                    Log.d(LOG_TAG, "Review table bulk insert completed" + contentValuesReview.length + " Inserted " + inserted);
+                }
+
+                ContentValues[] contentValuesVideo = MovieContent.insertVideoTable(response);
+                if (contentValuesVideo != null && contentValuesVideo.length > 0) {
+                    inserted = context.getContentResolver().bulkInsert(MovieContract.VideoEntry.buildVideoUriWithMovieId(Long.parseLong(movieId)), contentValuesVideo);
+                    Log.d(LOG_TAG, "Review table bulk insert completed" + contentValuesVideo.length + " Inserted " + inserted);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "network error " + error.getMessage());
+                Log.e(LOG_TAG, "Error: Volley Network error " + error.getMessage());
             }
         });
 
         VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
     }
 
-    public void fetchMovieReviews(Context context, int page, final String movieId) {
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriMovieReviews(page, movieId), null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                MovieContent.updateVideoTable(response);
-                // TODO: 1/10/16  update here to notify to update ui, how ???
-                Log.d(LOG_TAG, response.toString());
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "network error " + error.getMessage());
-            }
-        });
-
-        VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
-    }
 }

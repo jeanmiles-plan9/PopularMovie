@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.popularmovie.app.common.MovieConstant;
 import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.data.MovieContract;
@@ -32,32 +33,15 @@ import com.example.popularmovie.app.volley.MovieRequest;
 public class ItemListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
-    private static final String MAIN_TITLE = "Pop Movies";
+    private static final String POPULAR_TITLE = "Most Popular Movies";
+    private static final String RATING_TITLE =  "Highest Rated Movies";
+    private static final String FAVORITE_TITLE = "Favorite Movies";
     private static final String POSITION_STATE = "selected_position";
     private static final int MOVIE_LOADER = 0;
     private LoaderManager.LoaderCallbacks<Cursor> callbacks;
-    private static final String[] MOVIE_COLUMNS = {
-            MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_ID,
-            MovieContract.MovieEntry.COLUMN_POPULARITY,
-            MovieContract.MovieEntry.COLUMN_TITLE,
-            MovieContract.MovieEntry.COLUMN_RATING,
-            MovieContract.MovieEntry.COLUMN_RELEASE_DATE,
-            MovieContract.MovieEntry.COLUMN_OVERVIEW,
-            MovieContract.MovieEntry.COLUMN_RUNTIME,
-            MovieContract.MovieEntry.COLUMN_POSTER
-    };
-
-    static final int COL_MOVIE_ID = 0;
-    static final int COL_MOVIE_POPULARITY = 1;
-    static final int COL_MOVIE_TITLE = 2;
-    static final int COL_MOVIE_RELEASE_DATE = 3;
-    static final int COL_MOVIE_POSTER = 4;
-    static final int COL_MOVIE_OVERVIEW = 5;
-    static final int COL_MOVIE_RATING = 6;
-    static final int COL_MOVIE_RUNTIME = 7;
 
     private MovieRequest movieRequest;
-    private int grid_scroll_position = RecyclerView.NO_POSITION;
+    private static int grid_scroll_position = RecyclerView.NO_POSITION;
     private RecyclerView recyclerView;
 
     /**
@@ -80,7 +64,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(MAIN_TITLE);
+            getSupportActionBar().setTitle(POPULAR_TITLE);
         }
 
         final View view = findViewById(R.id.grid_list);
@@ -102,6 +86,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
             // large-screen layouts (res/values-w900dp).
             // If this view is present, then the
             // activity should be in two-pane mode.
+            gridLayoutManager.setSpanCount(3);
             twoPane = true;
         }
 
@@ -111,7 +96,6 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
          *  only time movie gets called again is app startup
          */
         movieRequest = new MovieRequest();
-        fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(POSITION_STATE)) {
             grid_scroll_position = savedInstanceState.getInt(POSITION_STATE);
@@ -137,13 +121,15 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         if (id == R.id.action_popular) {
             if (MovieContent.getMovieSortOrder() == MovieSortOrder.RATING) {
                 MovieContent.setMovieSortOrder(MovieSortOrder.POPULAR);
-                getSupportLoaderManager().restartLoader(MOVIE_LOADER,null,callbacks);
+                getSupportActionBar().setTitle(POPULAR_TITLE);
+                getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
             }
             Log.d(LOG_TAG, "most popular selected");
             return true;
         } else if (id == R.id.action_rated) {
             if (MovieContent.getMovieSortOrder() == MovieSortOrder.POPULAR) {
                 MovieContent.setMovieSortOrder(MovieSortOrder.RATING);
+                getSupportActionBar().setTitle(RATING_TITLE);
                 fetchMoviesFor(MovieSortOrder.RATING, MovieContent.LATEST_PAGE_RESULT_RATING);
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
             }
@@ -195,7 +181,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
 
         return new CursorLoader(this,
                 moviesUri,
-                null,
+                MovieConstant.MOVIE_COLUMNS,
                 null,
                 null,
                 sortOrder);
@@ -203,7 +189,9 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-
+        if (data.getCount() == 0){
+            fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
+        }
         switch (loader.getId()) {
             case MOVIE_LOADER: {
                 simpleGridRecyclerViewAdapter.swapCursor(data);
@@ -211,7 +199,8 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
             }
         }
         if (grid_scroll_position != RecyclerView.NO_POSITION) {
-            recyclerView.smoothScrollToPosition(grid_scroll_position);
+            Log.d(LOG_TAG, "Loader finished position to scroll to " + grid_scroll_position);
+            recyclerView.getLayoutManager().scrollToPosition(grid_scroll_position);
         }
     }
 

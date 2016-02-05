@@ -46,9 +46,8 @@ public class MovieContent {
     final static String MOVIE_OVERVIEW = "overview";
     final static String MOVIE_RELEASE_DATE = "release_date";
     final static String MOVIE_ID = "id";
-    private static final String MOVIE_POPULARITY = "popularity";
+    final static String MOVIE_POPULARITY = "popularity";
     final static String MOVIE_TITLE = "title";
-    final static String MOVIE_BACKDROP_PATH = "backdrop_path";
     final static String MOVIE_VOTE_AVERAGE = "vote_average";
     final static String MOVIE_VIDEOS = "videos";
     final static String MOVIE_RUNTIME = "runtime";
@@ -57,6 +56,9 @@ public class MovieContent {
     static final String MOVIE_REVIEWS = "reviews";
     static final String MOVIE_AUTHOR = "author";
     static final String MOVIE_CONTENT = "content";
+    static final String MOVIE_NAME = "name";
+    static final String MOVIE_SIZE = "size";
+    static final String MOVIE_TYPE = "type";
 
 
     /*
@@ -73,7 +75,7 @@ public class MovieContent {
         movieOrder = sortOrder;
     }
 
-    public static ContentValues[] updateMovieTable(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
+    public static ContentValues[] insertMovieTable(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
         ContentValues[] contentValuesArray = null;
         try {
             // parse out the Json response into MovieItems
@@ -96,7 +98,7 @@ public class MovieContent {
                 Log.d(LOG_TAG, sortOrder + " movie id is " + movieId + " movie title " + title + " poster " + poster);
 
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(MovieContract.MovieEntry.COLUMN_ID,Integer.parseInt(movieId));
+                contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(movieId));
                 contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, popularity);
                 contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
                 contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, rating);
@@ -114,46 +116,96 @@ public class MovieContent {
         return contentValuesArray;
     }
 
-    public static String createPosterUrl(String path) {
+    public static String buildPosterUrl(String path) {
         return MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
     }
 
-    public static void updateReviewTable(JSONObject response) {
+    public static String getReleaseYearFromDate(String releaseDate) {
+        String year = null;
+        if (releaseDate != null) {
+            String[] tokens = releaseDate.split("-");
+            year = tokens.length > 0 ? tokens[0] : "";
+        }
+        return year;
+    }
+
+    public static ContentValues[] insertReviewTable(JSONObject response) {
+        ContentValues[] contentValues = null;
+        try {
+            String movieId = (response.getString(MOVIE_ID));
+            JSONObject reviewObject = response.getJSONObject(MOVIE_REVIEWS);
+            if (movieId != null && reviewObject != null) {
+                JSONArray reviewArray = reviewObject.getJSONArray(MOVIE_RESULTS);
+                contentValues = new ContentValues[reviewArray.length()];
+                for (int index = 0; index < reviewArray.length(); index++) {
+                    JSONObject review = reviewArray.getJSONObject(index);
+                    int id = review.getInt(MOVIE_ID);
+                    String author = review.getString(MOVIE_AUTHOR);
+                    String content = review.getString(MOVIE_CONTENT);
+
+                    ContentValues reviewContentValue = new ContentValues();
+                    reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_ID, id);
+                    reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieId);
+                    reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, author);
+                    reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_REVIEW, content);
+                    contentValues[index] = reviewContentValue;
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+        return contentValues;
+    }
+
+    public static ContentValues[] insertVideoTable(JSONObject response) {
+        ContentValues[] contentValues = null;
+        try {
+            String movieId = (response.getString(MOVIE_ID));
+            JSONObject videoObject = response.getJSONObject(MOVIE_VIDEOS);
+            if (movieId != null && videoObject != null) {
+                JSONArray videoArray = videoObject.getJSONArray(MOVIE_RESULTS);
+                contentValues = new ContentValues[videoArray.length()];
+                for (int index = 0; index < videoArray.length(); index++) {
+                    JSONObject jsonMovie = videoArray.getJSONObject(index);
+                    String id = (response.getString(MOVIE_ID));
+                    String key = jsonMovie.getString(MOVIE_KEY);
+                    String name = jsonMovie.getString(MOVIE_NAME);
+                    String site = jsonMovie.getString(MOVIE_SITE);
+                    int size = jsonMovie.getInt(MOVIE_SIZE);
+                    String type = jsonMovie.getString(MOVIE_TYPE);
+
+                    ContentValues videoContentValues = new ContentValues();
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_ID, id);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieId);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_KEY, key);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_NAME, name);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_SITE, site);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, size);
+                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_TYPE, type);
+
+                    contentValues[index] = videoContentValues;
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+        return contentValues;
+    }
+
+    public static ContentValues updateMovieTable(JSONObject response) {
+        ContentValues contentValues = new ContentValues();
         try {
             String movieId = (response.getString(MOVIE_ID));
             if (movieId != null) {
                 int runtime = response.getInt(MOVIE_RUNTIME);
-                JSONObject reviews = response.getJSONObject(MOVIE_REVIEWS);
-                JSONArray results = reviews.getJSONArray(MOVIE_RESULTS);
-                for (int index = 0; index < results.length(); index++) {
-                    JSONObject review = results.getJSONObject(index);
-                    String author = review.getString(MOVIE_AUTHOR);
-                    String content= review.getString(MOVIE_CONTENT);
-                }
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, runtime);
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
-
+        return contentValues;
     }
 
-    public static void updateVideoTable(JSONObject response) {
-        try {
-            String movieId = response.getString(MOVIE_ID);
-            if (movieId != null) {
-                int runtime = response.getInt(MOVIE_RUNTIME);
-                JSONArray movieArray = response.getJSONObject(MOVIE_VIDEOS).getJSONArray(MOVIE_RESULTS);
-                for (int index = 0; index < movieArray.length(); index++) {
-                    JSONObject jsonMovie = movieArray.getJSONObject(index);
-                    String key = jsonMovie.getString(MOVIE_KEY);
-                    String site = jsonMovie.getString(MOVIE_SITE);
-                }
-            }
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, e.getMessage());
-        }
-
-    }
     /*
         * This method updates Movie table from JsonObject and set the sort order.  If the sort order has changed then the arraylist is
         * cleared.

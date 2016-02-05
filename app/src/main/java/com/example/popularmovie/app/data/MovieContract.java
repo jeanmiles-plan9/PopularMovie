@@ -43,6 +43,10 @@ public class MovieContract {
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
+
+        public static Uri buildReviewUriWithMovieId(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
     }
 
     public static final class VideoEntry implements BaseColumns {
@@ -68,7 +72,10 @@ public class MovieContract {
         public static final String COLUMN_SIZE = "size";
         public static final String COLUMN_TYPE = "type";
 
-        public static Uri buildVideoUri (long id) {
+        public static Uri buildVideoUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+        public static Uri buildVideoUriWithMovieId(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
