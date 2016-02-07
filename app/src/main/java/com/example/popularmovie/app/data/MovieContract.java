@@ -102,6 +102,7 @@ public class MovieContract {
         public static final String COLUMN_OVERVIEW = "overview";
         public static final String COLUMN_RUNTIME = "runtime";
         public static final String COLUMN_POSTER = "poster";
+        public static final String COLUMN_FAVORITE = "favorite";
 
         public static Uri buildMovieUri (long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);

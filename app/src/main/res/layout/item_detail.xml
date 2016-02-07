@@ -54,13 +54,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/text_margin"
                 android:textColor="@color/holo_purple"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/movie_item_running_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="20dp"
                 android:layout_marginLeft="@dimen/text_margin"
                 android:textSize="14sp" />
 
@@ -68,9 +69,23 @@
                 android:id="@+id/movie_item_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="20dp"
                 android:layout_marginLeft="@dimen/text_margin"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/movie_item_favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="30dp"
+                android:background="@android:color/transparent"
+                android:clickable="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingRight="10dp"
+                android:src="@drawable/star_outline"
+                android:tag="@string/favorite_off"/>
+
         </LinearLayout>
     </LinearLayout>
 

@@ -299,7 +299,7 @@ public class MovieProviderTest extends AndroidTestCase {
         updatedValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "updated overview");
 
         Cursor movieCursor = mContext.getContentResolver().query(
-                MovieContract.MovieEntry.CONTENT_URI,null,null,null,null,null);
+                MovieContract.MovieEntry.CONTENT_URI,null,null,null,null);
 
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
         movieCursor.registerContentObserver(tco);
@@ -344,9 +344,8 @@ public class MovieProviderTest extends AndroidTestCase {
         updatedValues.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, "new author");
         updatedValues.put(MovieContract.ReviewEntry.COLUMN_REVIEW, "updated review");
 
-        Cursor movieCursor = mContext.getContentResolver().query(
-                MovieContract.ReviewEntry.CONTENT_URI,null,null,null,null,null);
-
+//        Cursor movieCursor = mContext.getContentResolver().query(MovieContract.ReviewEntry.CONTENT_URI,null,null,null,null,null);
+        Cursor movieCursor = mContext.getContentResolver().query(MovieContract.ReviewEntry.CONTENT_URI,null,null,null,null);
         TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
         movieCursor.registerContentObserver(tco);
 

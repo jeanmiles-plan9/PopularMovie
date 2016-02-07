@@ -16,7 +16,8 @@ public class MovieConstant {
             MovieContract.MovieEntry.COLUMN_POSTER,
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_RATING,
-            MovieContract.MovieEntry.COLUMN_RUNTIME
+            MovieContract.MovieEntry.COLUMN_RUNTIME,
+            MovieContract.MovieEntry.COLUMN_FAVORITE
     };
 
     public static final int COL_MOVIE_OVERVIEW = 5;
@@ -27,12 +28,13 @@ public class MovieConstant {
     public static final int COL_MOVIE_POSTER = 4;
     public static final int COL_MOVIE_RATING = 6;
     public static final int COL_MOVIE_RUNTIME = 7;
-    public static final int COL_REVIEW_AUTHOR = 10;
-    public static final int COL_REVIEW_CONTENT = 11;
-    public static final int COL_VIDEO_KEY = 14;
-    public static final int COL_VIDEO_NAME = 15;
-    public static final int COL_VIDEO_SITE = 16;
-    public static final int COL_VIDEO_TYPE = 18;
+    public static final int COL_MOVIE_FAVORITE = 8;
+    public static final int COL_REVIEW_AUTHOR = 11;
+    public static final int COL_REVIEW_CONTENT = 12;
+    public static final int COL_VIDEO_KEY = 15;
+    public static final int COL_VIDEO_NAME = 16;
+    public static final int COL_VIDEO_SITE = 17;
+    public static final int COL_VIDEO_TYPE = 19;
 
     //SELECT m.id, popularity, title, releaseDate, poster, overview, rating, runtime,
     // r.id, r.movieId, author, review,
@@ -52,6 +54,7 @@ public class MovieConstant {
             MovieContract.MovieEntry.COLUMN_OVERVIEW,
             MovieContract.MovieEntry.COLUMN_RATING,
             MovieContract.MovieEntry.COLUMN_RUNTIME,
+            MovieContract.MovieEntry.COLUMN_FAVORITE,
 
             REVIEW_ALIAS + "." + MovieContract.ReviewEntry.COLUMN_ID,
             REVIEW_ALIAS + "." + MovieContract.ReviewEntry.COLUMN_MOVIE_ID,

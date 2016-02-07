@@ -1,5 +1,6 @@
 package com.example.popularmovie.app;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.example.popularmovie.app.common.ClickPlayListener;
 import com.example.popularmovie.app.common.MovieConstant;
 import com.example.popularmovie.app.content.MovieContent;
+import com.example.popularmovie.app.data.MovieContract;
 import com.example.popularmovie.app.volley.MovieRequest;
 import com.example.popularmovie.app.volley.VolleyManager;
 
@@ -32,6 +35,7 @@ import com.example.popularmovie.app.volley.VolleyManager;
  * on handsets.
  */
 public class ItemDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final String LOG_TAG = ItemDetailFragment.class.getSimpleName();
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -41,9 +45,12 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     public static final String ARG_TWOPANE = "twopane";
     public static final String ARG_DETAIL_URI = "contentUri";
     public static final String ARG_MOVIE_ID = "movieId";
+    private static final String FAVORITE_ON = "on";
+    private static final String FAVORITE_OFF = "off";
     private boolean twoPane;
     private Uri detailUri;
     private MovieRequest movieRequest;
+    private String movieId;
 
     // UI FIELDS
     private NetworkImageView posterImageView;
@@ -52,6 +59,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     private TextView overviewView;
     private TextView ratingView;
     private TextView runtimeView;
+    private ImageView favorite;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -68,12 +76,12 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         if (getArguments().containsKey(ARG_MOVIE_ID)) {
             // Load the movie content specified by the fragment
             // arguments.
-            String movieId = getArguments().getString(ARG_MOVIE_ID);
+            movieId = getArguments().getString(ARG_MOVIE_ID);
             detailUri = getArguments().getParcelable(ARG_DETAIL_URI);
             twoPane = getArguments().getBoolean(ARG_TWOPANE);
             fetchReviewsVideosForMovie(movieId);
         } else {
-            String movieId = getActivity().getIntent().getStringExtra(ARG_MOVIE_ID);
+            movieId = getActivity().getIntent().getStringExtra(ARG_MOVIE_ID);
             detailUri = getActivity().getIntent().getData();
             fetchReviewsVideosForMovie(movieId);
         }
@@ -94,6 +102,29 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         ratingView = ((TextView) rootView.findViewById(R.id.movie_item_rating));
         overviewView = ((TextView) rootView.findViewById(R.id.movie_item_overview));
         runtimeView = ((TextView) rootView.findViewById(R.id.movie_item_running_time));
+        favorite = (ImageView) rootView.findViewById(R.id.movie_item_favorite);
+        favorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                if (favorite.getTag().equals(FAVORITE_OFF)) {
+//                    favorite.setImageResource(R.drawable.star_filled);
+//                    favorite.setTag(FAVORITE_ON);
+//                } else {
+//                    favorite.setImageResource(R.drawable.star_outline);
+//                    favorite.setTag(FAVORITE_OFF);
+//                }
+
+//                // add update DB field on movie table as favorite
+                int indicator = favorite.getTag().equals(FAVORITE_OFF) ? 1 : 0;
+                ContentValues updateValues = new ContentValues();
+                updateValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, indicator);
+                int count = getContext().getContentResolver().update(
+                        MovieContract.MovieEntry.CONTENT_URI,
+                        updateValues, MovieContract.MovieEntry.COLUMN_ID + "= ?",
+                        new String[]{movieId});
+                Log.d(LOG_TAG, "favorite update with count " + count);
+            }
+        });
 
         return rootView;
     }
@@ -134,6 +165,10 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             releaseDateView.setText(
                     MovieContent.getReleaseYearFromDate(data.getString(MovieConstant.COL_MOVIE_RELEASE_DATE)));
             overviewView.setText(data.getString(MovieConstant.COL_MOVIE_OVERVIEW));
+            String favoriteTag = data.getInt(MovieConstant.COL_MOVIE_FAVORITE) == 0 ? FAVORITE_OFF : FAVORITE_ON;
+            int imageSource = favoriteTag.equals(FAVORITE_OFF) ? R.drawable.star_outline : R.drawable.star_filled;
+            favorite.setImageResource(imageSource);
+            favorite.setTag(favoriteTag);
         }
         // create views with section headers, trailers and reviews
         data.moveToFirst();
@@ -145,6 +180,12 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         if (getActivity().findViewById(R.id.trailer_title) == null) {
             for (int i = 0; i < data.getCount(); i++, data.moveToNext()) {
                 if (data.getString(MovieConstant.COL_VIDEO_KEY) != null) {
+                    if (i == 0) {
+                        View section = inflater.inflate(R.layout.list_detail_section_item, null);
+                        TextView title = (TextView) section.findViewById(R.id.list_detail_section_title);
+                        title.setText("Trailers");
+                        trailersLayout.addView(section);
+                    }
                     View v = inflater.inflate(R.layout.list_detail_trailer_item, null);
                     TextView textView = (TextView) v.findViewById(R.id.trailer_title);
                     textView.setText(data.getString(MovieConstant.COL_VIDEO_NAME));
@@ -155,6 +196,12 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 }
 
                 if (data.getString(MovieConstant.COL_REVIEW_AUTHOR) != null) {
+                    if (i == 0) {
+                        View section = inflater.inflate(R.layout.list_detail_section_item, null);
+                        TextView title = (TextView) section.findViewById(R.id.list_detail_section_title);
+                        title.setText("Reviews");
+                        reviewLayout.addView(section);
+                    }
                     View v = inflater.inflate(R.layout.list_detail_review_item, null);
                     TextView author = (TextView) v.findViewById(R.id.list_detail_author);
                     author.setText(data.getString(MovieConstant.COL_REVIEW_AUTHOR));
