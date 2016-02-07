@@ -7,9 +7,9 @@
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
-    android:showDividers="middle"
     tools:context="com.example.popularmovie.app.ItemListActivity">
 
+    <!--android:showDividers="middle"-->
     <!--
     This layout is a two-pane layout for the Items
     master/detail flow.

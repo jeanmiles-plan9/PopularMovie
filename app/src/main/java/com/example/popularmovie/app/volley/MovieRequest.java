@@ -97,7 +97,7 @@ public class MovieRequest {
                 ContentValues[] contentValuesVideo = MovieContent.insertVideoTable(response);
                 if (contentValuesVideo != null && contentValuesVideo.length > 0) {
                     inserted = context.getContentResolver().bulkInsert(MovieContract.VideoEntry.buildVideoUriWithMovieId(Long.parseLong(movieId)), contentValuesVideo);
-                    Log.d(LOG_TAG, "Review table bulk insert completed" + contentValuesVideo.length + " Inserted " + inserted);
+                    Log.d(LOG_TAG, "Video table bulk insert completed " + contentValuesVideo.length + " Inserted " + inserted);
                 }
             }
         }, new Response.ErrorListener() {

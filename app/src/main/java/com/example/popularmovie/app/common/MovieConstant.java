@@ -30,7 +30,8 @@ public class MovieConstant {
     public static final int COL_REVIEW_AUTHOR = 10;
     public static final int COL_REVIEW_CONTENT = 11;
     public static final int COL_VIDEO_KEY = 14;
-    public static final int COL_VIDEO_SITE = 15;
+    public static final int COL_VIDEO_NAME = 15;
+    public static final int COL_VIDEO_SITE = 16;
     public static final int COL_VIDEO_TYPE = 18;
 
     //SELECT m.id, popularity, title, releaseDate, poster, overview, rating, runtime,

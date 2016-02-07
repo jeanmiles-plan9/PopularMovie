@@ -14,13 +14,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/holo_blue_light"
-        android:paddingLeft="@dimen/text_margin"
-        android:paddingTop="@dimen/text_margin"
-        android:paddingRight="@dimen/text_margin"
         android:paddingBottom="@dimen/text_margin"
+        android:paddingLeft="@dimen/text_margin"
+        android:paddingRight="@dimen/text_margin"
+        android:paddingTop="@dimen/text_margin"
         android:textColor="@android:color/white"
         android:textSize="24sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/movie_item_detail"
@@ -33,11 +33,11 @@
             android:id="@+id/movie_item_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
             android:layout_marginLeft="@dimen/fab_margin"
             android:layout_marginTop="@dimen/fab_margin"
-            android:scaleType="fitXY"
-            android:layout_weight="2" />
+            android:layout_weight="2"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY" />
 
         <LinearLayout
             android:id="@+id/movie_item_text"
@@ -74,30 +74,30 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ScrollView xmlns:app="http://schemas.android.com/tools"
+    <TextView
+        android:id="@+id/movie_item_overview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/movie_item_overview_scrollview"
-        app:orientation="vertical"
-        android:layout_below="@+id/movie_item_detail">
+        android:layout_below="@+id/movie_item_detail"
+        android:layout_marginBottom="@dimen/text_margin"
+        android:layout_marginLeft="@dimen/text_margin"
+        android:layout_marginRight="@dimen/text_margin"
+        android:layout_marginTop="@dimen/text_margin"
+        android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/movie_item_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/text_margin"
-            android:layout_marginRight="@dimen/text_margin"
-            android:layout_marginTop="@dimen/text_margin"
-            android:layout_marginBottom="@dimen/text_margin"
-            android:textSize="14sp" />
-    </ScrollView>
-
-    <ExpandableListView
+    <LinearLayout
+        android:id="@+id/list_trailers_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_item_overview_scrollview"
-        android:id="@+id/expand_list_trailers_reviews">
-    </ExpandableListView>
+        android:orientation="vertical"
+        android:layout_below="@+id/movie_item_overview"/>
+
+    <LinearLayout
+        android:id="@+id/list_review_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/list_trailers_section"/>
 
 </RelativeLayout>
 

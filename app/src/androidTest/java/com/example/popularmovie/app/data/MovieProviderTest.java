@@ -184,7 +184,7 @@ public class MovieProviderTest extends AndroidTestCase {
                 null,
                 null,
                 null);
-        TestUtilities.validateCursor("test insert ReviewContent records",
+        TestUtilities.validateCursor("test insert Review Content records",
                 reviewCursor, reviewValues);
 
         // create videos

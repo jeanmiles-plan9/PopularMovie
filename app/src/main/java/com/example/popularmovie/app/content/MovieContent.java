@@ -11,6 +11,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Helper class for providing movie content for user interfaces created by
  * Android template wizards.
@@ -133,8 +136,8 @@ public class MovieContent {
         ContentValues[] contentValues = null;
         try {
             String movieId = (response.getString(MOVIE_ID));
-            JSONObject reviewObject = response.getJSONObject(MOVIE_REVIEWS);
-            if (movieId != null && reviewObject != null) {
+            if (movieId != null && response.has(MOVIE_REVIEWS)) {
+                JSONObject reviewObject = response.getJSONObject(MOVIE_REVIEWS);
                 JSONArray reviewArray = reviewObject.getJSONArray(MOVIE_RESULTS);
                 contentValues = new ContentValues[reviewArray.length()];
                 for (int index = 0; index < reviewArray.length(); index++) {
@@ -161,10 +164,10 @@ public class MovieContent {
         ContentValues[] contentValues = null;
         try {
             String movieId = (response.getString(MOVIE_ID));
-            JSONObject videoObject = response.getJSONObject(MOVIE_VIDEOS);
-            if (movieId != null && videoObject != null) {
+            if (movieId != null && response.has(MOVIE_VIDEOS)) {
+                JSONObject videoObject = response.getJSONObject(MOVIE_VIDEOS);
                 JSONArray videoArray = videoObject.getJSONArray(MOVIE_RESULTS);
-                contentValues = new ContentValues[videoArray.length()];
+                List<ContentValues> contentValuesList = new ArrayList<ContentValues>();
                 for (int index = 0; index < videoArray.length(); index++) {
                     JSONObject jsonMovie = videoArray.getJSONObject(index);
                     String id = (response.getString(MOVIE_ID));
@@ -174,17 +177,21 @@ public class MovieContent {
                     int size = jsonMovie.getInt(MOVIE_SIZE);
                     String type = jsonMovie.getString(MOVIE_TYPE);
 
-                    ContentValues videoContentValues = new ContentValues();
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_ID, id);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieId);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_KEY, key);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_NAME, name);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_SITE, site);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, size);
-                    videoContentValues.put(MovieContract.VideoEntry.COLUMN_TYPE, type);
-
-                    contentValues[index] = videoContentValues;
+                    // save only the top 5 trailers that is on YouTube site
+                    if (type.equals("Trailer") && site.equals("YouTube") && index < 5) {
+                        ContentValues videoContentValues = new ContentValues();
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_ID, id);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieId);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_KEY, key);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_NAME, name);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_SITE, site);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, size);
+                        videoContentValues.put(MovieContract.VideoEntry.COLUMN_TYPE, type);
+                        contentValuesList.add(videoContentValues);
+                    }
                 }
+                contentValues = contentValuesList.toArray(new ContentValues[contentValuesList.size()]);
+
             }
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage());
@@ -213,5 +220,10 @@ public class MovieContent {
     public static String getPosterUrl(String poster) {
         return MovieUrlBuilder.createImageUrl(poster, POSTER_SIZE);
     }
+
+    public static String createTrailerUrl(String key) {
+        return "https://www.YouTube.com/watch?v=" + key;
+    }
+
 
 }

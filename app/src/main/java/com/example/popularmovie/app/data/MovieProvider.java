@@ -174,7 +174,7 @@ public class MovieProvider extends ContentProvider {
             }
             case REVIEW: {
                 long id = db.insertWithOnConflict(MovieContract.ReviewEntry.TABLE_NAME, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                        SQLiteDatabase.CONFLICT_REPLACE);
                 if (id > 0) {
                     returnUri = MovieContract.ReviewEntry.buildReviewUri(id);
                 } else {
@@ -184,7 +184,7 @@ public class MovieProvider extends ContentProvider {
             }
             case VIDEO: {
                 long id = db.insertWithOnConflict(MovieContract.VideoEntry.TABLE_NAME, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                        SQLiteDatabase.CONFLICT_REPLACE);
                 if (id > 0) {
                     returnUri = MovieContract.VideoEntry.buildVideoUri(id);
                 } else {
@@ -301,7 +301,7 @@ public class MovieProvider extends ContentProvider {
                     for (ContentValues value : values) {
                         Log.d(LOG_TAG, "record to be inserted " + value.toString());
                         long id = db.insertWithOnConflict(MovieContract.ReviewEntry.TABLE_NAME, null, value,
-                                SQLiteDatabase.CONFLICT_IGNORE);
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (id != -1) {
                             returnCount++;
                         }
@@ -320,7 +320,7 @@ public class MovieProvider extends ContentProvider {
                     for (ContentValues value : values) {
                         Log.d(LOG_TAG, "record to be inserted " + value.toString());
                         long id = db.insertWithOnConflict(MovieContract.VideoEntry.TABLE_NAME, null, value,
-                                SQLiteDatabase.CONFLICT_IGNORE);
+                                SQLiteDatabase.CONFLICT_REPLACE);
                         if (id != -1) {
                             returnCount++;
                         }
