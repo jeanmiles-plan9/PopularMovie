@@ -9,5 +9,6 @@ package com.example.popularmovie.app.common;
  */
 public enum MovieSortOrder {
     POPULAR,
-    RATING
+    RATING,
+    FAVORITE
 }

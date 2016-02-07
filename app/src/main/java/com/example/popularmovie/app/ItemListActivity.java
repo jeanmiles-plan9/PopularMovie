@@ -34,9 +34,11 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
 
     private static final String LOG_TAG = ItemListActivity.class.getSimpleName();
     private static final String POPULAR_TITLE = "Most Popular Movies";
-    private static final String RATING_TITLE =  "Highest Rated Movies";
+    private static final String RATING_TITLE = "Highest Rated Movies";
     private static final String FAVORITE_TITLE = "Favorite Movies";
     private static final String POSITION_STATE = "selected_position";
+    private static final String FAVORITE_SELECTION = "favorite";
+    private static final int FAVORITE_SELECTION_ARG = 1;
     private static final int MOVIE_LOADER = 0;
     private LoaderManager.LoaderCallbacks<Cursor> callbacks;
 
@@ -119,22 +121,25 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         int id = item.getItemId();
         Log.d(LOG_TAG, "before change sortOrder " + MovieContent.getMovieSortOrder());
         if (id == R.id.action_popular) {
-            if (MovieContent.getMovieSortOrder() == MovieSortOrder.RATING) {
+            if (MovieContent.getMovieSortOrder() != MovieSortOrder.POPULAR) {
                 MovieContent.setMovieSortOrder(MovieSortOrder.POPULAR);
-                getSupportActionBar().setTitle(POPULAR_TITLE);
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
             }
             Log.d(LOG_TAG, "most popular selected");
             return true;
         } else if (id == R.id.action_rated) {
-            if (MovieContent.getMovieSortOrder() == MovieSortOrder.POPULAR) {
+            if (MovieContent.getMovieSortOrder() != MovieSortOrder.RATING) {
                 MovieContent.setMovieSortOrder(MovieSortOrder.RATING);
-                getSupportActionBar().setTitle(RATING_TITLE);
                 fetchMoviesFor(MovieSortOrder.RATING, MovieContent.LATEST_PAGE_RESULT_RATING);
                 getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
             }
             Log.d(LOG_TAG, "most highest rated selected");
             return true;
+        } else if (id == R.id.action_favorite) {
+            if (MovieContent.getMovieSortOrder() != MovieSortOrder.FAVORITE) {
+                MovieContent.setMovieSortOrder(MovieSortOrder.FAVORITE);
+                fetchFavoriteMovies();
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -177,21 +182,46 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
             sortOrder = MovieContract.MovieEntry.COLUMN_RATING + " DESC";
         }
         Log.d(LOG_TAG, "Cursor loader sortorder is " + sortOrder);
+
+        String selection = null;
+        String[] selectionArgs = null;
+        if (args != null && args.containsKey(FAVORITE_SELECTION)) {
+            selection = MovieContract.MovieEntry.COLUMN_FAVORITE + " = " + args.getInt(FAVORITE_SELECTION);
+        }
+
         Uri moviesUri = MovieContract.MovieEntry.CONTENT_URI;
+
 
         return new CursorLoader(this,
                 moviesUri,
                 MovieConstant.MOVIE_COLUMNS,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 sortOrder);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data.getCount() == 0){
+        if (data.getCount() == 0) {
             fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
         }
+        switch (MovieContent.getMovieSortOrder()) {
+            case POPULAR: {
+                getSupportActionBar().setTitle(POPULAR_TITLE);
+                break;
+            }
+            case RATING: {
+                getSupportActionBar().setTitle(RATING_TITLE);
+                break;
+            }
+            case FAVORITE: {
+                getSupportActionBar().setTitle(FAVORITE_TITLE);
+                break;
+            }
+            default:
+                getSupportActionBar().setTitle(POPULAR_TITLE);
+        }
+
         switch (loader.getId()) {
             case MOVIE_LOADER: {
                 simpleGridRecyclerViewAdapter.swapCursor(data);
@@ -228,6 +258,12 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
                 movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
             }
         }
+    }
+
+    private void fetchFavoriteMovies() {
+        Bundle args = new Bundle();
+        args.putInt(FAVORITE_SELECTION, FAVORITE_SELECTION_ARG);
+        getSupportLoaderManager().restartLoader(MOVIE_LOADER, args, callbacks);
     }
 
 
