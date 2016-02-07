@@ -152,7 +152,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 textView.setText(data.getString(MovieConstant.COL_VIDEO_NAME));
                 ImageView imagePlay = (ImageView) v.findViewById(R.id.play_button);
                 String trailerSource = MovieContent.createTrailerUrl(data.getString(MovieConstant.COL_VIDEO_KEY));
-                imagePlay.setOnClickListener(new ClickPlayListener(trailerSource));
+                imagePlay.setOnClickListener(new ClickPlayListener(getContext(), trailerSource));
                 trailersLayout.addView(v);
             }
             // TODO remove commented code just testing layout

@@ -1,5 +1,8 @@
 package com.example.popularmovie.app.common;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 
@@ -8,15 +11,18 @@ import android.view.View;
  * Created by jeanmiles-plan9 on 2/6/16.
  */
 public class ClickPlayListener implements View.OnClickListener {
+    private Context context;
     private String trailerSource;
 
-    public ClickPlayListener(String trailerSource) {
+    public ClickPlayListener(Context context,String trailerSource) {
         this.trailerSource = trailerSource;
-
+        this.context = context;
     }
 
     @Override
     public void onClick(View v) {
-        Log.d("playlistener", "playbutton clicked " + trailerSource);
+        Log.d(ClickPlayListener.class.getSimpleName(), "playbutton clicked source is" + trailerSource);
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(trailerSource));
+        context.startActivity(intent);
     }
 }
