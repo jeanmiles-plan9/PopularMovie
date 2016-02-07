@@ -111,10 +111,12 @@ public class TestUtilities extends AndroidTestCase {
         SQLiteDatabase db = movieDbHelper.getWritableDatabase();
 
         long videoId = 12345;
+        String key = "aJJrkyHas78";
+
         ContentValues contentValues = createVideoValues(550, videoId);
         long insertRowId = db.insert(MovieContract.VideoEntry.TABLE_NAME, null, contentValues);
 
-        assertTrue("Error:  Failure to insert video values", insertRowId == videoId);
+        assertTrue("Error:  Failure to insert video values", insertRowId == 1);
 
         return insertRowId;
     }
@@ -123,7 +125,7 @@ public class TestUtilities extends AndroidTestCase {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieId);
         contentValues.put(MovieContract.VideoEntry.COLUMN_ID, videoId);
-        contentValues.put(MovieContract.VideoEntry.COLUMN_KEY, 123456);
+        contentValues.put(MovieContract.VideoEntry.COLUMN_KEY, "aJJrkyHas78");
         contentValues.put(MovieContract.VideoEntry.COLUMN_NAME, "movie title");
         contentValues.put(MovieContract.VideoEntry.COLUMN_SITE, "youTube");
         contentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, "350");

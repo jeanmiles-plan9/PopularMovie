@@ -47,12 +47,12 @@ public class MovieDbHelper extends SQLiteOpenHelper {
                          " (" +
                         VideoEntry.COLUMN_ID + " INTEGER NOT NULL, " +
                         VideoEntry.COLUMN_MOVIE_ID + " INTEGER NOT NULL, " +
-                        VideoEntry.COLUMN_KEY + " INTEGER NOT NULL, " +
+                        VideoEntry.COLUMN_KEY + " TEXT NOT NULL, " +
                         VideoEntry.COLUMN_NAME + " TEXT NOT NULL,  " +
                         VideoEntry.COLUMN_SITE + " TEXT NOT NULL,  " +
                         VideoEntry.COLUMN_SIZE + " TEXT NOT NULL,  " +
                         VideoEntry.COLUMN_TYPE + " TEXT NOT NULL,  " +
-                        " PRIMARY KEY (" + VideoEntry.COLUMN_ID + ")," +
+                        " PRIMARY KEY (" + VideoEntry.COLUMN_ID + "," + VideoEntry.COLUMN_KEY + ")," +
                         "FOREIGN KEY (" + VideoEntry.COLUMN_MOVIE_ID +
                         ") references movie (" + MovieEntry.COLUMN_ID +
                         ") on update cascade on delete cascade);";

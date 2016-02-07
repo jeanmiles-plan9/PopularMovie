@@ -77,8 +77,6 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             detailUri = getActivity().getIntent().getData();
             fetchReviewsVideosForMovie(movieId);
         }
-
-
     }
 
     @Override
@@ -131,7 +129,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             String posterUrl = MovieContent.buildPosterUrl(data.getString(MovieConstant.COL_MOVIE_POSTER));
             posterImageView.setImageUrl(posterUrl, imageLoader);
             titleView.setText(data.getString(MovieConstant.COL_MOVIE_TITLE));
-            runtimeView.setText(data.getString(MovieConstant.COL_MOVIE_RUNTIME));
+            runtimeView.setText(data.getString(MovieConstant.COL_MOVIE_RUNTIME) + "min");
             ratingView.setText(data.getDouble(MovieConstant.COL_MOVIE_RATING) + "/10");
             releaseDateView.setText(
                     MovieContent.getReleaseYearFromDate(data.getString(MovieConstant.COL_MOVIE_RELEASE_DATE)));
@@ -144,25 +142,26 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout trailersLayout = (LinearLayout) getActivity().findViewById(R.id.list_trailers_section);
         LinearLayout reviewLayout = (LinearLayout) getActivity().findViewById(R.id.list_review_section);
+        if (getActivity().findViewById(R.id.trailer_title) == null) {
+            for (int i = 0; i < data.getCount(); i++, data.moveToNext()) {
+                if (data.getString(MovieConstant.COL_VIDEO_KEY) != null) {
+                    View v = inflater.inflate(R.layout.list_detail_trailer_item, null);
+                    TextView textView = (TextView) v.findViewById(R.id.trailer_title);
+                    textView.setText(data.getString(MovieConstant.COL_VIDEO_NAME));
+                    ImageView imagePlay = (ImageView) v.findViewById(R.id.play_button);
+                    String trailerSource = MovieContent.createTrailerUrl(data.getString(MovieConstant.COL_VIDEO_KEY));
+                    imagePlay.setOnClickListener(new ClickPlayListener(getContext(), trailerSource));
+                    trailersLayout.addView(v);
+                }
 
-        for (int i = 0; i < data.getCount(); i++, data.moveToNext()) {
-            if (data.getString(MovieConstant.COL_VIDEO_KEY) != null) {
-                View v = inflater.inflate(R.layout.list_detail_trailer_item, null);
-                TextView textView = (TextView) v.findViewById(R.id.trailer_title);
-                textView.setText(data.getString(MovieConstant.COL_VIDEO_NAME));
-                ImageView imagePlay = (ImageView) v.findViewById(R.id.play_button);
-                String trailerSource = MovieContent.createTrailerUrl(data.getString(MovieConstant.COL_VIDEO_KEY));
-                imagePlay.setOnClickListener(new ClickPlayListener(getContext(), trailerSource));
-                trailersLayout.addView(v);
-            }
-            // TODO remove commented code just testing layout
-            if (data.getString(MovieConstant.COL_MOVIE_ID) != null) {
-                View v = inflater.inflate(R.layout.list_detail_review_item, null);
-                TextView author = (TextView) v.findViewById(R.id.list_detail_author);
-                author.setText("author" + i);//data.getString(MovieConstant.COL_REVIEW_AUTHOR));
-                TextView review = (TextView) v.findViewById(R.id.list_detail_review);
-                review.setText("content" + i);//data.getString(MovieConstant.COL_REVIEW_CONTENT));
-                reviewLayout.addView(v);
+                if (data.getString(MovieConstant.COL_REVIEW_AUTHOR) != null) {
+                    View v = inflater.inflate(R.layout.list_detail_review_item, null);
+                    TextView author = (TextView) v.findViewById(R.id.list_detail_author);
+                    author.setText(data.getString(MovieConstant.COL_REVIEW_AUTHOR));
+                    TextView review = (TextView) v.findViewById(R.id.list_detail_review);
+                    review.setText(data.getString(MovieConstant.COL_REVIEW_CONTENT));
+                    reviewLayout.addView(v);
+                }
             }
         }
     }
