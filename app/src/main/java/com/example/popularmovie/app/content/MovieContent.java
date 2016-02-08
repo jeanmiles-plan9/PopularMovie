@@ -316,4 +316,51 @@ public class MovieContent {
     public static void clear() {
         MOVIE_ITEMS.clear();
     }
+
+    public static ContentValues createMovieContentValues(MovieDetail movieDetail) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MovieContract.MovieEntry.COLUMN_ID, movieDetail.movieId);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, 0.0);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, movieDetail.title);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, movieDetail.rating);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, movieDetail.releaseDate);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, movieDetail.overview);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, movieDetail.poster);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, movieDetail.runtime);
+        contentValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, movieDetail.favorite);
+        return contentValues;
+    }
+
+    public static ContentValues[] createMovieTrailersValues(MovieDetail movieDetail) {
+        ContentValues[] contentValues = new ContentValues[movieDetail.trailers.size()];
+        int i = 0;
+        for (MovieDetail.Trailer trailer : movieDetail.trailers) {
+            ContentValues videoContentValues = new ContentValues();
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_ID, movieDetail.movieId+1);
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_MOVIE_ID, movieDetail.movieId);
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_KEY, trailer.source);
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_NAME, trailer.name);
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_SITE, "YouTube");
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_SIZE, 0);
+            videoContentValues.put(MovieContract.VideoEntry.COLUMN_TYPE, "Trailers");
+            contentValues[i] =videoContentValues;
+            i++;
+        }
+        return contentValues;
+    }
+
+    public static ContentValues[] createMovieReviewsValues(MovieDetail movieDetail) {
+        ContentValues[] contentValues = new ContentValues[movieDetail.reviews.size()];
+        int i = 0;
+        for (MovieDetail.Review review : movieDetail.reviews) {
+            ContentValues reviewContentValue = new ContentValues();
+            reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_ID, movieDetail.movieId+1);
+            reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_MOVIE_ID, movieDetail.movieId);
+            reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_AUTHOR, review.author);
+            reviewContentValue.put(MovieContract.ReviewEntry.COLUMN_REVIEW, review.content);
+            contentValues[i] = reviewContentValue;
+            i++;
+        }
+        return new ContentValues[0];
+    }
 }

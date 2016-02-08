@@ -161,8 +161,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             public void onClick(View v) {
                 // add update DB field on movie table as favorite
                 // indicator switch the value here (toggle) DB 1 is true  0 is false
-
                 if (movieDetail.favorite == 0) {
+                    loadValuesFromDetail(movieDetail);
                     contentValuesMovie.put(MovieContract.MovieEntry.COLUMN_FAVORITE, 1);
                     Uri uri = getContext().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI,
                             contentValuesMovie);
@@ -187,6 +187,18 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         });
 
         return rootView;
+    }
+
+    /*
+     * This method determine if data is from database, when need to load contentvalues with data from
+     * movieDetail object before inserting.
+     */
+    private void loadValuesFromDetail(MovieDetail movieDetail) {
+        if (contentValuesMovie == null) {
+            contentValuesMovie = MovieContent.createMovieContentValues(movieDetail);
+            contentValuesTrailers = MovieContent.createMovieTrailersValues(movieDetail);
+            contentValuesReviews = MovieContent.createMovieReviewsValues(movieDetail);
+        }
     }
 
     @Override
