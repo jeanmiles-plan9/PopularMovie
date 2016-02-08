@@ -3,9 +3,13 @@ package com.example.popularmovie.app;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,14 +27,20 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.example.popularmovie.app.common.ClickPlayListener;
 import com.example.popularmovie.app.common.MovieConstant;
 import com.example.popularmovie.app.common.MovieSortOrder;
+import com.example.popularmovie.app.common.NetworkValidation;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.content.MovieDetail;
 import com.example.popularmovie.app.data.MovieContract;
 import com.example.popularmovie.app.volley.MovieRequest;
 import com.example.popularmovie.app.volley.VolleyManager;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 ;
 
@@ -77,6 +87,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     private TextView ratingView;
     private TextView runtimeView;
     private ImageView favorite;
+    private String imageSavePath;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -117,7 +128,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
             // if data exist for this movie then it exist in database do not override, need the favorite value.
             contentValuesMovie = (ContentValues) intent.getParcelableExtra(VOLLEY_MOVIE_DATA);
             if (movieDetail == null || (movieDetail != null &&
-                    movieDetail.movieId != ((Integer)contentValuesMovie.get(MovieContract.MovieEntry.COLUMN_ID)).intValue())) {
+                    movieDetail.movieId != ((Integer) contentValuesMovie.get(MovieContract.MovieEntry.COLUMN_ID)).intValue())) {
                 contentValuesTrailers = (ContentValues[]) intent.getParcelableArrayExtra(VOLLEY_TRAILER_DATA);
                 contentValuesReviews = (ContentValues[]) intent.getParcelableArrayExtra(VOLLEY_REVIEW_DATA);
                 movieDetail = new MovieDetail(contentValuesMovie, contentValuesTrailers, contentValuesReviews);
@@ -155,6 +166,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                     if (contentValuesReviews != null && contentValuesReviews.length > 0) {
                         int count = getContext().getContentResolver().bulkInsert(MovieContract.ReviewEntry.CONTENT_URI, contentValuesReviews);
                     }
+                    saveToInternalStorage(((BitmapDrawable) favorite.getDrawable()).getBitmap());
                     Log.d(LOG_TAG, "favorite insert db, insert uri " + uri);
                 } else {
                     int count = getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
@@ -223,7 +235,9 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
 
     // Volley request to theMovieDB
     private void fetchReviewsVideosForMovie(String movieId) {
-        movieRequest.fetchMovieVideosReviews(getContext(), movieId);
+        if (NetworkValidation.isNetworkAvailable(getContext())) {
+            movieRequest.fetchMovieVideosReviews(getContext(), movieId);
+        }
     }
 
     // Update UI from MovieDetail.  MovieDetail is created either by DB or JSON data.
@@ -231,8 +245,13 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         ImageLoader imageLoader = VolleyManager.getInstance(getActivity().getApplicationContext()).getImageLoader();
 
         String favoriteTag = movieDetail.favorite == 0 ? FAVORITE_OFF : FAVORITE_ON;
-
-        posterImageView.setImageUrl(movieDetail.posterUrl, imageLoader);
+        if (NetworkValidation.isNetworkAvailable(getContext())) {
+            posterImageView.setImageUrl(movieDetail.posterUrl, imageLoader);
+        } else {
+            if (imageSavePath != null) {
+                loadImageFromStorage(imageSavePath);
+            }
+        }
         titleView.setText(movieDetail.title);
         runtimeView.setText(movieDetail.runtime);
         ratingView.setText(movieDetail.rating);
@@ -284,5 +303,40 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    private String saveToInternalStorage(Bitmap bitmapImage) {
+        ContextWrapper cw = new ContextWrapper(getActivity().getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath = new File(directory, "profile.jpg");
 
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "storing bitmap image " + e.getMessage());
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "error closing saving bitmap file " + e.getMessage());
+                return null;
+            }
+        }
+        return directory.getAbsolutePath();
+    }
+
+    private void loadImageFromStorage(String path) {
+
+        try {
+            File f = new File(path, "profile.jpg");
+            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+            posterImageView.setImageBitmap(b);
+        } catch (FileNotFoundException e) {
+            Log.e(LOG_TAG, "retrieving stored bitmap image " + e.getMessage());
+        }
+
+    }
 }

@@ -18,6 +18,7 @@ import android.view.View;
 
 import com.example.popularmovie.app.common.MovieConstant;
 import com.example.popularmovie.app.common.MovieSortOrder;
+import com.example.popularmovie.app.common.NetworkValidation;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.data.MovieContract;
 import com.example.popularmovie.app.volley.MovieRequest;
@@ -126,28 +127,28 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         Log.d(LOG_TAG, "before change sortOrder " + MovieContent.getMovieSortOrder());
         if (id == R.id.action_popular) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.POPULAR) {
-                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.POPULAR);
+                Log.d(LOG_TAG, "most popular selected");
+                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.clear();
                 MovieContent.LATEST_PAGE_RESULT_POPULAR = 1;
                 fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
             }
-            Log.d(LOG_TAG, "most popular selected");
             return true;
         } else if (id == R.id.action_rated) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.RATING) {
-                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.RATING);
+                Log.d(LOG_TAG, "most highest rated selected");
+                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.clear();
                 MovieContent.LATEST_PAGE_RESULT_RATING = 1;
                 fetchMoviesFor(MovieSortOrder.RATING, MovieContent.LATEST_PAGE_RESULT_RATING);
             }
-            Log.d(LOG_TAG, "most highest rated selected");
             return true;
         } else if (id == R.id.action_favorite) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.FAVORITE) {
-                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.FAVORITE);
+                getSupportActionBar().setTitle(getActionBarTitle());
                 fetchFavoriteMovies();
             }
         }
@@ -243,24 +244,32 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
     }
 
     private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
-        Log.d(LOG_TAG, "Movie request sort order is " + sortOrder);
-        if (sortOrder == MovieSortOrder.POPULAR) {
-            movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
-        } else if (sortOrder == MovieSortOrder.RATING) {
-            movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+        if (NetworkValidation.isNetworkAvailable(this)) {
+            Log.d(LOG_TAG, "Movie request sort order is " + sortOrder);
+            if (sortOrder == MovieSortOrder.POPULAR) {
+                movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+            } else if (sortOrder == MovieSortOrder.RATING) {
+                movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+            }
         }
     }
 
     private void fetchFavoriteMovies() {
-        Bundle args = new Bundle();
-        args.putInt(FAVORITE_SELECTION, FAVORITE_SELECTION_ARG);
-        getSupportLoaderManager().restartLoader(MOVIE_LOADER, args, callbacks);
+        if (NetworkValidation.isNetworkAvailable(this)) {
+            Bundle args = new Bundle();
+            args.putInt(FAVORITE_SELECTION, FAVORITE_SELECTION_ARG);
+            getSupportLoaderManager().restartLoader(MOVIE_LOADER, args, callbacks);
+        }
     }
 
 
     private String getActionBarTitle() {
-        String title = POPULAR_TITLE;
+        String title = "";
         switch (MovieContent.getMovieSortOrder()) {
+            case POPULAR: {
+                title = POPULAR_TITLE;
+                break;
+            }
             case RATING: {
                 title = RATING_TITLE;
                 break;

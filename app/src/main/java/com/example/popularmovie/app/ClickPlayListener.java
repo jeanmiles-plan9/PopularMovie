@@ -1,4 +1,4 @@
-package com.example.popularmovie.app.common;
+package com.example.popularmovie.app;
 
 import android.content.Context;
 import android.content.Intent;
