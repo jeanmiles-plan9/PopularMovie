@@ -163,7 +163,7 @@ public class MovieProvider extends ContentProvider {
         switch (match) {
             case MOVIE: {
                 long id = db.insertWithOnConflict(MovieContract.MovieEntry.TABLE_NAME, null, values,
-                        SQLiteDatabase.CONFLICT_IGNORE);
+                        SQLiteDatabase.CONFLICT_REPLACE);
                 if (id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(id);
                 } else {

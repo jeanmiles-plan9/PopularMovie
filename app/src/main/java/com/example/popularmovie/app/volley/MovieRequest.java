@@ -2,19 +2,23 @@ package com.example.popularmovie.app.volley;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.popularmovie.app.ItemDetailFragment;
 import com.example.popularmovie.app.SimpleGridRecyclerViewAdapter;
 import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.common.MovieUrlBuilder;
 import com.example.popularmovie.app.content.MovieContent;
-import com.example.popularmovie.app.data.MovieContract;
 
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 /**
  * UdaCity Android Nanodegree
@@ -29,12 +33,9 @@ public class MovieRequest {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUrlFetchMostPopularMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                ContentValues[] contentValues = MovieContent.insertMovieTable(response, MovieSortOrder.POPULAR);
-                int inserted = 0;
-                if (contentValues.length > 0) {
-                    inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-                }
-                Log.d(LOG_TAG, "Movie table bulk insert completed" + contentValues.length + " Inserted " + inserted);
+                ContentValues[] contentValues = MovieContent.insertMoviesTable(response, MovieSortOrder.POPULAR);
+                MovieContent.addAllMovieItems(Arrays.asList(contentValues));
+                movieAdapter.notifyDataSetChanged();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -52,12 +53,9 @@ public class MovieRequest {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, MovieUrlBuilder.createUriFetchHighestRatedMovies(page), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                ContentValues[] contentValues = MovieContent.insertMovieTable(response, MovieSortOrder.RATING);
-                int inserted = 0;
-                if (contentValues.length > 0) {
-                    inserted = context.getContentResolver().bulkInsert(MovieContract.MovieEntry.CONTENT_URI, contentValues);
-                }
-                Log.d(LOG_TAG, "Movie table bulk insert completed" + contentValues.length + " Inserted " + inserted);
+                ContentValues[] contentValues = MovieContent.insertMoviesTable(response, MovieSortOrder.RATING);
+                MovieContent.addAllMovieItems(Arrays.asList(contentValues));
+                movieAdapter.notifyDataSetChanged();
             }
         }, new Response.ErrorListener() {
             @Override
@@ -77,28 +75,10 @@ public class MovieRequest {
             public void onResponse(JSONObject response) {
                 Log.d(LOG_TAG, response.toString());
 
-                ContentValues contentValuesMovie = MovieContent.updateMovieTable(response);
-                int updated = 0;
-                if (contentValuesMovie.containsKey(MovieContract.MovieEntry.COLUMN_RUNTIME)) {
-                    updated = context.getContentResolver().update(
-                            MovieContract.MovieEntry.CONTENT_URI,
-                            contentValuesMovie, MovieContract.MovieEntry.COLUMN_ID + "= ?",
-                            new String[] {movieId});
-                    Log.d(LOG_TAG, "Movie table update completed" + movieId  + " updated " + updated);
-                }
-
-                int inserted = 0;
+                ContentValues contentValuesMovie = MovieContent.insertMovieTable(response);
                 ContentValues[] contentValuesReview = MovieContent.insertReviewTable(response);
-                if (contentValuesReview != null && contentValuesReview.length > 0) {
-                    inserted = context.getContentResolver().bulkInsert(MovieContract.ReviewEntry.buildReviewUriWithMovieId(Long.parseLong(movieId)), contentValuesReview);
-                    Log.d(LOG_TAG, "Review table bulk insert completed" + contentValuesReview.length + " Inserted " + inserted);
-                }
-
                 ContentValues[] contentValuesVideo = MovieContent.insertVideoTable(response);
-                if (contentValuesVideo != null && contentValuesVideo.length > 0) {
-                    inserted = context.getContentResolver().bulkInsert(MovieContract.VideoEntry.buildVideoUriWithMovieId(Long.parseLong(movieId)), contentValuesVideo);
-                    Log.d(LOG_TAG, "Video table bulk insert completed " + contentValuesVideo.length + " Inserted " + inserted);
-                }
+                notifyUpdateUI(context, contentValuesMovie, contentValuesVideo, contentValuesReview);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -108,6 +88,14 @@ public class MovieRequest {
         });
 
         VolleyManager.getInstance(context).addToRequestQueue(jsonObjectRequest);
+    }
+
+    private void notifyUpdateUI(Context context, ContentValues contentValuesMovie, ContentValues[] contentValuesVideo, ContentValues[] contentValuesReview) {
+        Intent intent = new Intent(ItemDetailFragment.VOLLEY_MOVIE_DETAIL_EVENT);
+        intent.putExtra(ItemDetailFragment.VOLLEY_MOVIE_DATA, contentValuesMovie);
+        intent.putExtra(ItemDetailFragment.VOLLEY_TRAILER_DATA, contentValuesVideo);
+        intent.putExtra(ItemDetailFragment.VOLLEY_REVIEW_DATA, contentValuesReview);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 
 }

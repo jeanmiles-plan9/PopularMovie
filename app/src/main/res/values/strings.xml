@@ -63,4 +63,6 @@
     <string name="item_detail">Item Detail</string>
     <string name="favorite_off">off</string>
     <string name="action_selected_favorite">Favorites</string>
+    <string name="trailer_header">Trailers</string>
+    <string name="review_header">Reviews</string>
 </resources>

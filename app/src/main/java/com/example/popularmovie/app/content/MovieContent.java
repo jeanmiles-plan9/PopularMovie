@@ -23,24 +23,18 @@ public class MovieContent {
 
     public static String LOG_TAG = MovieContent.class.getSimpleName();
 
-//    public static final List<MovieItem> ITEMS = new ArrayList<MovieItem>();
-//    /**
-//     * A map of movie items, by ID.
-//     */
-//    public static final Map<String, MovieItem> ITEM_MAP = new HashMap<String, MovieItem>();
-
+    public static final List<ContentValues> MOVIE_ITEMS = new ArrayList<ContentValues>();
 
     /*
      * Latest page result retrieved
      */
-    public static int LATEST_PAGE_RESULT_POPULAR = 0;
-    public static int LATEST_PAGE_RESULT_RATING = 0;
+    public static int LATEST_PAGE_RESULT_POPULAR = 1;
+    public static int LATEST_PAGE_RESULT_RATING = 1;
     /*
      * Set sort order of movies - default is popular
      */
     private static MovieSortOrder movieOrder = MovieSortOrder.POPULAR;
     final private static String POSTER_SIZE = "w185";
-    final private static String BACKDROP_SIZE = "w92";
 
     // names of JSON objects
     final static String MOVIE_PAGE = "page";
@@ -78,16 +72,21 @@ public class MovieContent {
         movieOrder = sortOrder;
     }
 
-    public static ContentValues[] insertMovieTable(JSONObject movieJsonObject, MovieSortOrder sortOrder) {
+
+    // use for bulk inserts
+    public static ContentValues[] insertMoviesTable(JSONObject movieJsonObject,
+                                                    MovieSortOrder sortOrder) {
         ContentValues[] contentValuesArray = null;
         try {
             // parse out the Json response into MovieItems
             JSONArray movieArray = movieJsonObject.getJSONArray(MOVIE_RESULTS);
             contentValuesArray = new ContentValues[movieArray.length()];
-            // update page result so app can keep track what is the next page to retrieve next
 
-            LATEST_PAGE_RESULT_POPULAR = sortOrder == MovieSortOrder.POPULAR ? movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_POPULAR;
-            LATEST_PAGE_RESULT_RATING = sortOrder == MovieSortOrder.RATING ? movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_RATING;
+            // update page result so app can keep track what is the next page to retrieve next
+            LATEST_PAGE_RESULT_POPULAR = sortOrder == MovieSortOrder.POPULAR ?
+                    movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_POPULAR;
+            LATEST_PAGE_RESULT_RATING = sortOrder == MovieSortOrder.RATING ?
+                    movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_RATING;
 
             for (int index = 0; index < movieArray.length(); index++) {
                 JSONObject jsonMovie = movieArray.getJSONObject(index);
@@ -98,7 +97,8 @@ public class MovieContent {
                 String releaseDate = jsonMovie.getString(MOVIE_RELEASE_DATE);
                 double rating = jsonMovie.getDouble(MOVIE_VOTE_AVERAGE);
                 String poster = jsonMovie.getString(MOVIE_POSTER_PATH);
-                Log.d(LOG_TAG, sortOrder + " movie id is " + movieId + " movie title " + title + " poster " + poster);
+                Log.d(LOG_TAG, sortOrder + " movie id is " + movieId + " movie title " +
+                        title + " poster " + poster);
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(movieId));
@@ -113,6 +113,39 @@ public class MovieContent {
                 contentValuesArray[index] = contentValues;
             }
 
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+        return contentValuesArray;
+    }
+
+    // used for JSON only retrieves no data base inserts or updates
+    public static ContentValues[] createMovieContentValues(JSONObject movieJsonObject,
+                                                            MovieSortOrder sortOrder) {
+        ContentValues[] contentValuesArray = null;
+        try {
+            // parse out the Json response into MovieItems
+            JSONArray movieArray = movieJsonObject.getJSONArray(MOVIE_RESULTS);
+            contentValuesArray = new ContentValues[movieArray.length()];
+
+            // update page result so app can keep track what is the next page to retrieve next
+            LATEST_PAGE_RESULT_POPULAR = sortOrder == MovieSortOrder.POPULAR ?
+                    movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_POPULAR;
+            LATEST_PAGE_RESULT_RATING = sortOrder == MovieSortOrder.RATING ?
+                    movieJsonObject.getInt(MOVIE_PAGE) : LATEST_PAGE_RESULT_RATING;
+
+            for (int index = 0; index < movieArray.length(); index++) {
+                JSONObject jsonMovie = movieArray.getJSONObject(index);
+                String movieId = jsonMovie.getString(MOVIE_ID);
+                String poster = jsonMovie.getString(MOVIE_POSTER_PATH);
+                Log.d(LOG_TAG, sortOrder + " movie id is " + movieId + " poster " + poster);
+
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(movieId));
+                contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, poster);
+
+                contentValuesArray[index] = contentValues;
+            }
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage());
         }
@@ -199,6 +232,7 @@ public class MovieContent {
         return contentValues;
     }
 
+    // update movie table with runtime data
     public static ContentValues updateMovieTable(JSONObject response) {
         ContentValues contentValues = new ContentValues();
         try {
@@ -213,17 +247,65 @@ public class MovieContent {
         return contentValues;
     }
 
+
+    // use to save favorite movies to database
+    public static ContentValues insertMovieTable(JSONObject response) {
+        ContentValues contentValues = new ContentValues();
+        try {
+            String movieId = (response.getString(MOVIE_ID));
+            if (movieId != null) {
+                double popularity = response.getDouble(MOVIE_POPULARITY);
+                String title = response.getString(MOVIE_TITLE);
+                String overview = response.getString(MOVIE_OVERVIEW);
+                String releaseDate = response.getString(MOVIE_RELEASE_DATE);
+                double rating = response.getDouble(MOVIE_VOTE_AVERAGE);
+                String poster = response.getString(MOVIE_POSTER_PATH);
+                int runtime = response.getInt(MOVIE_RUNTIME);
+
+                Log.d(LOG_TAG, " movie id is " + movieId + " movie title " + title
+                        + " poster " + poster);
+
+                contentValues.put(MovieContract.MovieEntry.COLUMN_ID, Integer.parseInt(movieId));
+                contentValues.put(MovieContract.MovieEntry.COLUMN_POPULARITY, popularity);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_TITLE, title);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RATING, rating);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, releaseDate);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, overview);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_POSTER, poster);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_RUNTIME, runtime);
+                contentValues.put(MovieContract.MovieEntry.COLUMN_FAVORITE, 0);
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage());
+        }
+        return contentValues;
+    }
+
     /*
-        * This method updates Movie table from JsonObject and set the sort order.  If the sort order has changed then the arraylist is
+        * This method updates Movie table from JsonObject and set the sort order.
+        * If the sort order has changed then the arraylist is
         * cleared.
         */
     public static String getPosterUrl(String poster) {
         return MovieUrlBuilder.createImageUrl(poster, POSTER_SIZE);
     }
 
+    // create trailer url for youtube videos
     public static String createTrailerUrl(String key) {
         return "https://www.YouTube.com/watch?v=" + key;
     }
 
 
+    public static void addAllMovieItems(List<ContentValues> movieItems) {
+        MOVIE_ITEMS.addAll(movieItems);
+        Log.d(LOG_TAG, "movie item size is " + MOVIE_ITEMS.size());
+    }
+
+    public static List<ContentValues> getMovieItems() {
+        return MOVIE_ITEMS;
+    }
+
+    public static void clear() {
+        MOVIE_ITEMS.clear();
+    }
 }

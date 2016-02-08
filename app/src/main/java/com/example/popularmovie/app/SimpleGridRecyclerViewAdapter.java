@@ -1,5 +1,6 @@
 package com.example.popularmovie.app;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,9 +16,12 @@ import android.view.ViewGroup;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.example.popularmovie.app.common.MovieConstant;
+import com.example.popularmovie.app.common.MovieSortOrder;
 import com.example.popularmovie.app.content.MovieContent;
 import com.example.popularmovie.app.data.MovieContract;
 import com.example.popularmovie.app.volley.VolleyManager;
+
+import java.util.List;
 
 /**
  * UdaCity Android Nanodegree
@@ -31,11 +35,15 @@ public class SimpleGridRecyclerViewAdapter
     private Context ctx;
     private boolean twoPane;
     public int imagePosition;
-    Cursor dataCursor;
 
-    public SimpleGridRecyclerViewAdapter(Context context, boolean twoPane) {
+    // data holder favorites dataCursor,  popular and highest rating list of contentvalues
+    private Cursor dataCursor;
+    private final List<ContentValues> movieItems;
+
+    public SimpleGridRecyclerViewAdapter(Context context, boolean twoPane, List<ContentValues> movieItems) {
         this.ctx = context;
         this.twoPane = twoPane;
+        this.movieItems = movieItems;
     }
 
     @Override
@@ -47,27 +55,49 @@ public class SimpleGridRecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
-        if (dataCursor == null || dataCursor.getCount() == 0) return;
-        dataCursor.moveToPosition(position);
+        String movieId = null;
+        Uri contentUri = null;
         ImageLoader imageLoader = VolleyManager.getInstance(ctx.getApplicationContext()).getImageLoader();
-        String posterUrl = MovieContent.getPosterUrl(dataCursor.getString(MovieConstant.COL_MOVIE_POSTER));
-        if (posterUrl != null || !posterUrl.isEmpty()) {
-            holder.mNetworkImageView.setImageUrl(posterUrl, imageLoader);
-        }
+
+        if (MovieContent.getMovieSortOrder() == MovieSortOrder.FAVORITE) {
+//            if (dataCursor == null || dataCursor.getCount() == 0) return;
+            dataCursor.moveToPosition(position);
+            String poster = dataCursor.getString(MovieConstant.COL_MOVIE_POSTER);
+            String posterUrl = MovieContent.getPosterUrl(poster);
+            movieId = dataCursor.getString(MovieConstant.COL_MOVIE_ID);
+            contentUri = MovieContract.MovieEntry.buildMovieReviewVideo(movieId);
+            // update UI
+            if (poster != null || !poster.isEmpty()) {
+                holder.mNetworkImageView.setImageUrl(posterUrl, imageLoader);
+            }
 //        Log.d(LOG_TAG, "POSITION:" + position +
 //                " MOVIE TITLE: " + dataCursor.getString(MovieConstant.COL_MOVIE_TITLE) +
 //                " MOVIE POSTER: " + dataCursor.getString(MovieConstant.COL_MOVIE_POSTER));
-        final String movieId = dataCursor.getString(MovieConstant.COL_MOVIE_ID);
+        } else {
+            holder.contentValues = movieItems.get(position);
+            String poster = (String) holder.contentValues.get(MovieContract.MovieEntry.COLUMN_POSTER);
+            String posterUrl = MovieContent.getPosterUrl(poster);
+            movieId = String.valueOf(holder.contentValues.get(MovieContract.MovieEntry.COLUMN_ID));
+            contentUri = MovieContract.MovieEntry.buildMovieReviewVideo(movieId);
+            // update UI
+            if (poster != null || !poster.isEmpty()) {
+                holder.mNetworkImageView.setImageUrl(posterUrl, imageLoader);
+            }
+        }
+
+
+        // this is setup for either array or datacursor data.
+        final String movieIdArg = movieId;
+        final Uri contentUriArg = contentUri;
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO:  CONSIDER MOVING SOME OF THIS CODE INTO ACTIVITY CALLBACK onItemSelected()
-                Uri contentUri = MovieContract.MovieEntry.buildMovieReviewVideo(movieId);
-                Log.d(LOG_TAG, " Detail content uri " + contentUri.toString());
+                Log.d(LOG_TAG, " Detail content uri " + contentUriArg.toString());
                 if (twoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putString(ItemDetailFragment.ARG_MOVIE_ID, movieId);
-                    arguments.putParcelable(ItemDetailFragment.ARG_DETAIL_URI, contentUri);
+                    arguments.putString(ItemDetailFragment.ARG_MOVIE_ID, movieIdArg);
+                    arguments.putSerializable(ItemDetailFragment.ARG_SORTORDER, MovieContent.getMovieSortOrder());
+                    arguments.putParcelable(ItemDetailFragment.ARG_DETAIL_URI, contentUriArg);
                     arguments.putBoolean(ItemDetailFragment.ARG_TWOPANE, twoPane);
                     ItemDetailFragment fragment = new ItemDetailFragment();
                     fragment.setArguments(arguments);
@@ -80,9 +110,9 @@ public class SimpleGridRecyclerViewAdapter
                 } else {
                     Context context = v.getContext();
                     Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.setData(contentUri);
-                    intent.putExtra(ItemDetailFragment.ARG_MOVIE_ID, movieId);
-
+                    intent.setData(contentUriArg);
+                    intent.putExtra(ItemDetailFragment.ARG_MOVIE_ID, movieIdArg);
+                    intent.putExtra(ItemDetailFragment.ARG_SORTORDER, MovieContent.getMovieSortOrder());
                     context.startActivity(intent);
                 }
                 imagePosition = position;
@@ -98,7 +128,23 @@ public class SimpleGridRecyclerViewAdapter
      **/
     @Override
     public int getItemCount() {
-        return (dataCursor == null) ? 0 : dataCursor.getCount();
+        int count = 0;
+
+        switch (MovieContent.getMovieSortOrder()) {
+            case POPULAR: {
+                count = movieItems.size();
+                break;
+            }
+            case RATING: {
+                count = movieItems.size();
+                break;
+            }
+            case FAVORITE: {
+                count = dataCursor == null ? 0 : dataCursor.getCount();
+                break;
+            }
+        }
+        return count;
     }
 
     public Cursor swapCursor(Cursor cursor) {
@@ -131,6 +177,7 @@ public class SimpleGridRecyclerViewAdapter
 
     //  ViewHolder for RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
+        public ContentValues contentValues;
         public final View mView;
         public final NetworkImageView mNetworkImageView;
 

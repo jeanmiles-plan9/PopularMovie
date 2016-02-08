@@ -66,7 +66,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(POPULAR_TITLE);
+            getSupportActionBar().setTitle(getActionBarTitle());
         }
 
         final View view = findViewById(R.id.grid_list);
@@ -93,11 +93,15 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         }
 
         setupRecyclerView(recyclerView);
+
+        // this must happen after the adapter is created in setupRecyclerView.
+        movieRequest = new MovieRequest();
+        fetchMoviesFor(MovieSortOrder.POPULAR, 1);
+
         /*
          *  This checks to see if there is any contents in movie, if so don't call API again
          *  only time movie gets called again is app startup
          */
-        movieRequest = new MovieRequest();
 
         if (savedInstanceState != null && savedInstanceState.containsKey(POSITION_STATE)) {
             grid_scroll_position = savedInstanceState.getInt(POSITION_STATE);
@@ -122,26 +126,31 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         Log.d(LOG_TAG, "before change sortOrder " + MovieContent.getMovieSortOrder());
         if (id == R.id.action_popular) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.POPULAR) {
+                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.POPULAR);
-                getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
+                MovieContent.clear();
+                MovieContent.LATEST_PAGE_RESULT_POPULAR = 1;
+                fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
             }
             Log.d(LOG_TAG, "most popular selected");
             return true;
         } else if (id == R.id.action_rated) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.RATING) {
+                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.RATING);
+                MovieContent.clear();
+                MovieContent.LATEST_PAGE_RESULT_RATING = 1;
                 fetchMoviesFor(MovieSortOrder.RATING, MovieContent.LATEST_PAGE_RESULT_RATING);
-                getSupportLoaderManager().restartLoader(MOVIE_LOADER, null, callbacks);
             }
             Log.d(LOG_TAG, "most highest rated selected");
             return true;
         } else if (id == R.id.action_favorite) {
             if (MovieContent.getMovieSortOrder() != MovieSortOrder.FAVORITE) {
+                getSupportActionBar().setTitle(getActionBarTitle());
                 MovieContent.setMovieSortOrder(MovieSortOrder.FAVORITE);
                 fetchFavoriteMovies();
             }
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -176,6 +185,8 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
     // LoaderManager overrides
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // TODO  if popular or rating then return only favorite call db.
+
 
         String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         if (MovieContent.getMovieSortOrder() == MovieSortOrder.RATING) {
@@ -202,24 +213,9 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data.getCount() == 0) {
-            fetchMoviesFor(MovieSortOrder.POPULAR, MovieContent.LATEST_PAGE_RESULT_POPULAR);
-        }
-        switch (MovieContent.getMovieSortOrder()) {
-            case POPULAR: {
-                getSupportActionBar().setTitle(POPULAR_TITLE);
-                break;
-            }
-            case RATING: {
-                getSupportActionBar().setTitle(RATING_TITLE);
-                break;
-            }
-            case FAVORITE: {
-                getSupportActionBar().setTitle(FAVORITE_TITLE);
-                break;
-            }
-            default:
-                getSupportActionBar().setTitle(POPULAR_TITLE);
+        if (MovieContent.getMovieSortOrder() == MovieSortOrder.POPULAR || MovieContent.getMovieSortOrder()
+                == MovieSortOrder.RATING) {
+            return;
         }
 
         switch (loader.getId()) {
@@ -242,21 +238,16 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
 
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, twoPane);
+        simpleGridRecyclerViewAdapter = new SimpleGridRecyclerViewAdapter(this, twoPane, MovieContent.MOVIE_ITEMS);
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 
     private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
-        // if page is 0 then this is first request for Popular or Rating json data  the rest of pages are
-        if (page != 1) {
-            page = page > 0 ? page : 1;
-
-            Log.d(LOG_TAG, "Movie request sort order is " + sortOrder);
-            if (sortOrder == MovieSortOrder.POPULAR) {
-                movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
-            } else if (sortOrder == MovieSortOrder.RATING) {
-                movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
-            }
+        Log.d(LOG_TAG, "Movie request sort order is " + sortOrder);
+        if (sortOrder == MovieSortOrder.POPULAR) {
+            movieRequest.fetchMoviesInMostPopularOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
+        } else if (sortOrder == MovieSortOrder.RATING) {
+            movieRequest.fetchMoviesInHighestRatingOrder(getApplicationContext(), page, simpleGridRecyclerViewAdapter);
         }
     }
 
@@ -266,5 +257,20 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         getSupportLoaderManager().restartLoader(MOVIE_LOADER, args, callbacks);
     }
 
+
+    private String getActionBarTitle() {
+        String title = POPULAR_TITLE;
+        switch (MovieContent.getMovieSortOrder()) {
+            case RATING: {
+                title = RATING_TITLE;
+                break;
+            }
+            case FAVORITE: {
+                title = FAVORITE_TITLE;
+                break;
+            }
+        }
+        return title;
+    }
 
 }
