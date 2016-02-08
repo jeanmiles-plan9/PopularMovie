@@ -14,6 +14,10 @@ public class ClickPlayListener implements View.OnClickListener {
     private Context context;
     private String trailerSource;
 
+
+    /*
+     * This class is used to initiate YouTube in Web Browser
+     */
     public ClickPlayListener(Context context,String trailerSource) {
         this.trailerSource = trailerSource;
         this.context = context;

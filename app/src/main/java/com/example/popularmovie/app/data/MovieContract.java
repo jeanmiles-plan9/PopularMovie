@@ -18,7 +18,12 @@ public class MovieContract {
     public static final String PATH_REVIEW = "review";
     public static final String PATH_VIDEO = "video";
 
-
+    /*
+     * This class is part of collection of classes that work together to create/drop db and tables,
+     * and DB insert, update, query, delete.
+     *
+     * This class defines the Db and tables in this project
+     */
     public static final class ReviewEntry implements BaseColumns {
         public static final Uri CONTENT_URI = BASE_CONTENT_URL.buildUpon().appendPath(PATH_REVIEW).build();
 

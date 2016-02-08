@@ -108,6 +108,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
             grid_scroll_position = savedInstanceState.getInt(POSITION_STATE);
         }
 
+        // setup for LoaderManager DB calls
         callbacks = this;
         LoaderManager loaderManager = getSupportLoaderManager();
         loaderManager.initLoader(MOVIE_LOADER, null, callbacks);
@@ -186,9 +187,6 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
     // LoaderManager overrides
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        // TODO  if popular or rating then return only favorite call db.
-
-
         String sortOrder = MovieContract.MovieEntry.COLUMN_POPULARITY + " DESC";
         if (MovieContent.getMovieSortOrder() == MovieSortOrder.RATING) {
             sortOrder = MovieContract.MovieEntry.COLUMN_RATING + " DESC";
@@ -243,6 +241,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         recyclerView.setAdapter(simpleGridRecyclerViewAdapter);
     }
 
+    // retrieve popular or highest rated movies from theMovieDB in JSON format (Volley is used to make the request)
     private void fetchMoviesFor(MovieSortOrder sortOrder, int page) {
         if (NetworkValidation.isNetworkAvailable(this)) {
             Log.d(LOG_TAG, "Movie request sort order is " + sortOrder);
@@ -254,6 +253,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         }
     }
 
+    // retreive favorite movies from Db
     private void fetchFavoriteMovies() {
         if (NetworkValidation.isNetworkAvailable(this)) {
             Bundle args = new Bundle();
@@ -262,7 +262,7 @@ public class ItemListActivity extends AppCompatActivity implements LoaderManager
         }
     }
 
-
+    // this determines what the title bar should be.  Based on the Data content (Popular, Rated, Favorite)
     private String getActionBarTitle() {
         String title = "";
         switch (MovieContent.getMovieSortOrder()) {

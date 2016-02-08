@@ -10,7 +10,9 @@ import android.net.NetworkInfo;
  */
 public class NetworkValidation {
 
-
+    /*
+     * This method determine if there is Network Connection
+     */
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager)   context.getSystemService(Context.CONNECTIVITY_SERVICE);

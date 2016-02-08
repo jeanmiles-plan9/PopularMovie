@@ -28,6 +28,10 @@ public class MovieProvider extends ContentProvider {
     static final int VIDEO_WITH_MOVIEID = 301;
     static final String MOVIE_ALIAS = "m";
 
+    /*
+     * This class interacts with indirectly with Activity and Fragment on table  query, insert, update and delete.
+     * It also works with LoaderManager on callbacks.
+     */
     private static final SQLiteQueryBuilder movieWithReviewVideoQueryBuilder;
 
     static {

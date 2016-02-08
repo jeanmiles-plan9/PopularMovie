@@ -7,7 +7,10 @@ import com.example.popularmovie.app.data.MovieContract;
  * Created by jeanmiles-plan9 on 2/3/16.
  */
 public class MovieConstant {
-
+    /*
+     * This class defines all columns constant to be used by Activity and Fragments---not the
+     * DB class in the data folder.
+     */
     public static final String[] MOVIE_COLUMNS = {
             MovieContract.MovieEntry.TABLE_NAME + "." + MovieContract.MovieEntry.COLUMN_ID,
             MovieContract.MovieEntry.COLUMN_POPULARITY,
@@ -36,6 +39,7 @@ public class MovieConstant {
     public static final int COL_VIDEO_SITE = 17;
     public static final int COL_VIDEO_TYPE = 19;
 
+    // Sample SQL query
     //SELECT m.id, popularity, title, releaseDate, poster, overview, rating, runtime,
     // r.id, r.movieId, author, review,
     // v.id, v.movieId, key, name, site, size, type FROM movie AS m

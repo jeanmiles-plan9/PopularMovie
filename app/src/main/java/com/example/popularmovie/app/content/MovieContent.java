@@ -23,6 +23,7 @@ public class MovieContent {
 
     public static String LOG_TAG = MovieContent.class.getSimpleName();
 
+    // This is used by Popular and Highest Rated Movies == Json data
     public static final List<ContentValues> MOVIE_ITEMS = new ArrayList<ContentValues>();
 
     /*
@@ -152,10 +153,12 @@ public class MovieContent {
         return contentValuesArray;
     }
 
+    // use to create poster url for ImageView
     public static String buildPosterUrl(String path) {
         return MovieUrlBuilder.createImageUrl(path, POSTER_SIZE);
     }
 
+    // parse out the Year from data value
     public static String getReleaseYearFromDate(String releaseDate) {
         String year = null;
         if (releaseDate != null) {
@@ -165,6 +168,7 @@ public class MovieContent {
         return year;
     }
 
+    // use for Review table bulk inserts for a movie
     public static ContentValues[] insertReviewTable(JSONObject response) {
         ContentValues[] contentValues = null;
         try {
@@ -193,6 +197,7 @@ public class MovieContent {
         return contentValues;
     }
 
+    // use to do bulk insert of videos for a movie
     public static ContentValues[] insertVideoTable(JSONObject response) {
         ContentValues[] contentValues = null;
         try {
@@ -296,15 +301,18 @@ public class MovieContent {
     }
 
 
+    // convenience method to add collection to movie items
     public static void addAllMovieItems(List<ContentValues> movieItems) {
         MOVIE_ITEMS.addAll(movieItems);
         Log.d(LOG_TAG, "movie item size is " + MOVIE_ITEMS.size());
     }
 
+    // retrieve movie items array
     public static List<ContentValues> getMovieItems() {
         return MOVIE_ITEMS;
     }
 
+    // clean movie items array
     public static void clear() {
         MOVIE_ITEMS.clear();
     }

@@ -59,6 +59,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     private static final int DETAIL_LOADER = 0;
 
     public static final String ARG_TWOPANE = "twopane";
+
+    // Fields to support Db and Json data
     public static final String ARG_DETAIL_URI = "contentUri";
     public static final String ARG_MOVIE_ID = "movieId";
     private static final String FAVORITE_ON = "on";
@@ -69,7 +71,6 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     public static final String VOLLEY_TRAILER_DATA = "volley_trailer_data";
     public static final String VOLLEY_REVIEW_DATA = "volley_review_data";
     private LoaderManager.LoaderCallbacks<Cursor> callbacks;
-    private boolean twoPane;
     private Uri detailUri;
     private MovieRequest movieRequest;
     private String movieId;
@@ -80,6 +81,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     private MovieDetail movieDetail;
 
     // UI FIELDS
+    private boolean twoPane;
     private NetworkImageView posterImageView;
     private TextView releaseDateView;
     private TextView titleView;
@@ -122,6 +124,10 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
     }
 
 
+    /*
+     * This is used for Volley callbacks when Json data is received and parse into new arrays.
+     * The arrays are used to create MovieDetail that will be used to Map UI.
+     */
     private BroadcastReceiver volleyReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -190,6 +196,7 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         super.onActivityCreated(savedInstanceState);
     }
 
+    // LocalBroadcastListener -- need to register and unregister the listener
     @Override
     public void onResume() {
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(volleyReciever,
@@ -240,7 +247,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
-    // Update UI from MovieDetail.  MovieDetail is created either by DB or JSON data.
+    // Update UI from MovieDetail.  MovieDetail is created either by DB (in onLoadFinished()) or JSON data(callback
+    // from the Broadcast listener.
     private void updateView(MovieDetail movieDetail) {
         ImageLoader imageLoader = VolleyManager.getInstance(getActivity().getApplicationContext()).getImageLoader();
 
@@ -314,6 +322,9 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         }
     }
 
+    /*
+     * Save the Image Bitmap to storage when Favorite image is clicked.
+     */
     private String saveToInternalStorage(Bitmap bitmapImage) {
         ContextWrapper cw = new ContextWrapper(getActivity().getApplicationContext());
         // path to /data/data/yourapp/app_data/imageDir
@@ -339,6 +350,10 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
         return directory.getAbsolutePath();
     }
 
+
+    /*
+     * This method retrieve the Bitmap image from storage
+     */
     private void loadImageFromStorage(String path) {
 
         try {

@@ -19,7 +19,10 @@ public class MovieDbHelper extends SQLiteOpenHelper {
 
     static final String DATABASE_NAME = "movieDB.db";
 
-
+    /*
+     * This class initiates the DB/table creations, the SQL statements reside in this class.
+     *
+     */
     public MovieDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }

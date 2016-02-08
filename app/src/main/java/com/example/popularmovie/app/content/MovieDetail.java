@@ -28,6 +28,10 @@ public class MovieDetail {
     public List<Trailer> trailers;
     public List<Review> reviews;
 
+    /*
+     * This class is used to hold Detail Movie information.  This data can be Db or JSON data. Depends on
+     * the constructor that is used how this is created.
+     */
     public MovieDetail(Cursor data) {
         trailers = new ArrayList<Trailer>();
         reviews = new ArrayList<Review>();
