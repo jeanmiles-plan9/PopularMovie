@@ -252,6 +252,17 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 loadImageFromStorage(imageSavePath);
             }
         }
+        if (twoPane) {
+
+            LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) posterImageView.getLayoutParams();
+            if (layoutParams == null) {
+                layoutParams = new LinearLayout.LayoutParams(100, 350);
+                posterImageView.setLayoutParams(layoutParams);
+            } else {
+                posterImageView.getLayoutParams().height = 350;
+                posterImageView.getLayoutParams().width = 100;
+            }
+        }
         titleView.setText(movieDetail.title);
         runtimeView.setText(movieDetail.runtime);
         ratingView.setText(movieDetail.rating);
@@ -265,7 +276,8 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                 getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout trailersLayout = (LinearLayout) getActivity().findViewById(R.id.list_trailers_section);
         LinearLayout reviewLayout = (LinearLayout) getActivity().findViewById(R.id.list_review_section);
-        if (getActivity().findViewById(R.id.trailer_title) == null) {
+        if (getActivity().findViewById(R.id.trailer_title) == null && trailersLayout != null
+                && reviewLayout != null) {
             // if trailers is not empty put in a section header
             if (!movieDetail.trailers.isEmpty()) {
                 View section = inflater.inflate(R.layout.list_detail_section_item, null);
@@ -283,22 +295,21 @@ public class ItemDetailFragment extends Fragment implements LoaderManager.Loader
                     imagePlay.setOnClickListener(new ClickPlayListener(getContext(), trailerSource));
                     trailersLayout.addView(v);
                 }
+            }
+            if (!movieDetail.reviews.isEmpty()) {
 
-                if (!movieDetail.reviews.isEmpty()) {
-
-                    View section = inflater.inflate(R.layout.list_detail_section_item, null);
-                    TextView title = (TextView) section.findViewById(R.id.list_detail_section_title);
-                    title.setText(R.string.review_header);
-                    reviewLayout.addView(section);
-                }
-                for (MovieDetail.Review review : movieDetail.reviews) {
-                    View v = inflater.inflate(R.layout.list_detail_review_item, null);
-                    TextView author = (TextView) v.findViewById(R.id.list_detail_author);
-                    author.setText(review.author);
-                    TextView content = (TextView) v.findViewById(R.id.list_detail_review);
-                    content.setText(review.content);
-                    reviewLayout.addView(v);
-                }
+                View section = inflater.inflate(R.layout.list_detail_section_item, null);
+                TextView title = (TextView) section.findViewById(R.id.list_detail_section_title);
+                title.setText(R.string.review_header);
+                reviewLayout.addView(section);
+            }
+            for (MovieDetail.Review review : movieDetail.reviews) {
+                View v = inflater.inflate(R.layout.list_detail_review_item, null);
+                TextView author = (TextView) v.findViewById(R.id.list_detail_author);
+                author.setText(review.author);
+                TextView content = (TextView) v.findViewById(R.id.list_detail_review);
+                content.setText(review.content);
+                reviewLayout.addView(v);
             }
         }
     }
